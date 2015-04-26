@@ -1,0 +1,27 @@
+{% extends "layout.html"}
+{% block style %}
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+th, td {
+    padding: 5px;
+}
+{% endblock %}
+{% block nav %}
+<li><a href="{{ url_for('play') }}">Play</a></li>
+{% endblock %}
+{% block content %}
+<h1>Top Scores</h1>
+<table style="width:100%">
+  <tr>
+    <th>Username</th>
+    <th>Wins</th>
+  </tr>
+  {% for score in top_scores %}
+  <tr>
+    <td>{{ score.username }}</td>
+    <td>{{ score.wins }}</td>
+  </tr>
+</table>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "layout.html"}
+{% block nav %}
+<li><a href="{{ url_for('scores') }}">Scores</a></li>
+{% endblock %}
+{% block content %}
+<h1>Guess a letter!</h1>
+    <form method="get" action="{{ url_for('play') }}">
+    <p><input type="text" name="guess" required></p>
+    <p><button type="submit">Send</button></p>
+    </form>
+{% endblock %}

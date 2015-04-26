@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>{{ title }}</title>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <style>
+        li {
+          display: inline;
+        }
+        {% block style %}
+        {% endblock }
+        </style>
+    </head>
+    <body>
+        {% with messages = get_flashed_messages() %} ###
+        {% if messages %}
+        <ul class=flashes>
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+        <ul>
+          {% block nav %}{% endblock %}
+          <li><a href="{{ url_for('logout') }}">Logout</a></li>
+        </ul>
+        {% block content %}
+        {% endblock %}
+    </body>
+</html>
