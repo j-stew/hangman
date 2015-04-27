@@ -4,4 +4,6 @@ mkvirtualenv hangman
 
 pip install -r requirements.txt
 
+In hangman/hangman/__init__.py, replace YOUR_COMPS_USERNAME with local username
+
 python run.py
