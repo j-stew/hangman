@@ -3,6 +3,8 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from hangman import hangman_app
 
 db = SQLAlchemy(hangman_app)
+db.create_all()
+db.session.commit()
 
 '''
 Setup:
