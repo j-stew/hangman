@@ -3,13 +3,17 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from hangman import hangman_app
 
 db = SQLAlchemy(hangman_app)
-# db.create_all()
 
-# words = open("hangman/words.txt", "r").read().split("', '")
+'''
+Setup:
+db.create_all()
 
-# for word in words:
-# 	db.session.add(Word(word))
-# db.session.commit()
+words = open("hangman/words.txt", "r").read().split("', '")
+
+for word in words:
+	db.session.add(Word(word))
+db.session.commit()
+'''
 
 class User(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
