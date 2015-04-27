@@ -1,4 +1,4 @@
-# To run:
-
-# from hangman import hangman_app
-# hangman_app.run(debug=True)
+git clone git@github.com:jessicastewart/hangman.git
+mkvirtualenv hangman
+pip install -r requirements.txt
+python run.py
