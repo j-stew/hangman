@@ -1,3 +1,4 @@
-To run:
-from hangman import hangman_app
-hangman_app.run(debug=True)
+# To run:
+
+# from hangman import hangman_app
+# hangman_app.run(debug=True)
