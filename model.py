@@ -5,11 +5,11 @@ from hangman import hangman_app
 db = SQLAlchemy(hangman_app)
 # db.create_all()
 
-# words = open("words.txt", "r").read().split("', '")
+# words = open("hangman/words.txt", "r").read().split("', '")
 
 # for word in words:
-# 	model.db.session.add(model.Word(word))
-# model.db.session.commit()
+# 	db.session.add(Word(word))
+# db.session.commit()
 
 class User(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
@@ -43,26 +43,6 @@ class Game(db.Model):
 	def __repr__(self):
 		return "{} guessed {} which was a {}.".format(self.username, self.guessed, self.status)
 
-	@property
-	def blanks(self):
-		return " ".join(["___" for char in self.word])
-
-	def char_replace(self, guessed, guess):
-		guessed = guessed.split(" ") # ["___","___","___","___"]
-		char_positions = [i for i, char in enumerate(self.word) if char == guess] # [0, 3]
-		return 'debug' ## " ".join([guessed[position] = guess for position in char_position])
-
-	def add_game(game_type, game, guessed, answer, username):
-		game = model.Game(game_type, guessed, answer, username)
-		model.db.session.add(game)
-		user = model.User.query.filter_by(username=session.username).first()
-		## user.loses += 1 if game_type == 'loss' else user.wins += 1
-		if game_type == 'loss':
-			user.loses += 1
-		else:
-			user.wins += 1
-		model.db.session.commit()
-
 class Word(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	word = db.Column(db.String(200))
@@ -76,3 +56,7 @@ class Word(db.Model):
 	@property
 	def possible_guesses(self):
 		return len(self.word)
+
+	@property
+	def blanks(self):
+		return " ".join(["___" for char in self.word])

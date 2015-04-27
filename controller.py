@@ -11,7 +11,8 @@ import model
 def auth(f):
 	@wraps(f)
 	def wrapper(*args, **kwargs):
-		if session['username']:
+		if not session.get('username'):
+			flash('Must login to play')
 			return redirect(url_for('login'))
 		return f(*args, **kwargs)
 	return wrapper
@@ -26,29 +27,54 @@ def random_word():
 	num = randint(1, model.Word.query.count()+1)
 	return model.Word.query.filter_by(id=num).first()
 
+def char_replace(guessed, guess, answer):
+	guessed = guessed.split(" ")
+	char_positions = [i for i, char in enumerate(answer) if char == guess]
+	for position in char_positions:
+		guessed[position] = guess
+	return " ".join(guessed)
+
+def add_game(game_type, guessed, answer, username):
+	game = model.Game(game_type, guessed, answer, username)
+	model.db.session.add(game)
+	user = model.User.query.filter_by(username=session['username']).first()
+	if game_type == 'loss':
+		user.loses += 1
+	else:
+		user.wins += 1
+	model.db.session.commit()
+
 ############
 ###ROUTES###
 ############
 
-@hangman-app.route("/login", methods=["GET", "POST"])
+@hangman_app.route("/login", methods=["GET", "POST"])
 def login():
+	if request.method == 'GET':
+		return render_template('login.html')
+
 	username = validate_input('username')
 	password = validate_input('password')
 
-	db_username = model.User.query.filter_by(username=username).first()
-	db_password = db_username.password
-
-	if not db_username:
+	user = model.User.query.filter_by(username=username).first()
+	if not user:
 		flash("Username not found. Please create account.")
+		return redirect(url_for('signup'))
 
-	if db_password != password:
-		flash("Password not found. Please try again.")
+	user_password = user.password
+
+	if user_password != password:
+	 	flash("Password invalid. Please try again.")
+	 	return redirect(url_for('login'))
 	else:
 		session['username'] = username
-		return render_template("play.html", title="Play")
+		return redirect(url_for('play'))
 
-@hangman-app.route("/signup", methods=["GET", "POST"])
+@hangman_app.route("/signup", methods=["GET", "POST"])
 def signup():
+	if request.method == 'GET':
+		return render_template('signup.html')
+
 	username = validate_input('username')
 	password = validate_input('password')
 
@@ -56,67 +82,88 @@ def signup():
 
 	if db_username:
 		flash("Username already exists. Please try again.")
+		return redirect(url_for('signup'))
 	else:
 		new_user = model.User(username, password)
 		model.db.session.add(new_user)
 		model.db.session.commit()
-		return render_template("play.html", title="Play")
+		session['username'] = username
+		return redirect(url_for('play'))
 
-@hangman-app.route("/logout", methods=["GET", "POST"])
+@hangman_app.route("/logout", methods=["GET", "POST"])
 def logout():
-	session.pop('username')
+	session.clear()
 	return redirect(url_for("login"))
 
-@hangman-app.route("/play", methods=["GET", "POST"])
+@hangman_app.route("/play", methods=["GET", "POST"])
 @auth
-def play(guess=None, answer=None, guessed=None, incorrectly_guessed=None, remaining_guesses=None):
-	if answer == None:
-		answer = random_word()
-		remaining_guesses = answer.possible_guesses
-		guessed = answer.blanks()
-		incorrectly_guessed = []
-		answer = answer.word
+def play():
+	if not session.get('remaining_guesses') or session.get('remaining_guesses') == 0:
+		session['answer'] = random_word()
+		session['remaining_guesses'] = session['answer'].possible_guesses
+		session['guessed'] = session['answer'].blanks
+		session['incorrectly_guessed'] = ''
+		session['answer'] = session['answer'].word
+		return render_template('play.html', answer=session['answer'], 
+			remaining_guesses=session['remaining_guesses'], 
+			guessed=session['guessed'], 
+			incorrectly_guessed=session['incorrectly_guessed']
+			)
+
+	if request.method=='GET':
+		return render_template('play.html', answer=session['answer'], 
+			remaining_guesses=session['remaining_guesses'], 
+			guessed=session['guessed'], 
+			incorrectly_guessed=session['incorrectly_guessed']
+			)
 	
 	guess = validate_input('guess').lower()
 
 	if len(guess) > 1:
 		flash('Please guess a single letter.')
+		return redirect(url_for('play'))
 
 	if guess not in 'abcdefghijklmnopqrstuvwxyz':
 		flash('Please guess a letter, not punction or numbers.')
+		return redirect(url_for('play'))
 
-	if guess in incorrectly_guessed:
-		flash('{} already guessed. Please guess a new letter.'.format(guess))
+	if guess in session['incorrectly_guessed']:
+		flash('"{}" already guessed. Please guess a new letter.'.format(guess))
+		return redirect(url_for('play'))
 
-	remaining_guesses -= 1
+	session['remaining_guesses'] -= 1
 
-	if guess in answer:
-		guessed = char_replace(guessed=guessed, guess=guess)
+	if guess in session['answer']:
+		session['guessed'] = char_replace(guessed=session['guessed'], guess=guess, answer=session['answer'])
 	else:
-		incorrectly_guessed.append(guess)
+		session['incorrectly_guessed'] += guess
 
-	if "___" not in guessed:
-		add_game('win', game, guessed, answer, session.username)
-		return redirect(url_for('win'), answer)
-	elif remaining_guesses == 0:
-		add_game('loss', game, guessed, answer, session.username)
-		return redirect(url_for('loss'), answer, guessed)
+	if "___" not in session['guessed']:
+		add_game('win', session['guessed'], session['answer'], session['username'])
+		return redirect(url_for('win'))
+	elif session['remaining_guesses'] == 0:
+		add_game('loss', session['guessed'], session['answer'], session['username'])
+		return redirect(url_for('loss'))
 	else:
-		return redirect(url_for('play'), guess=guess, answer=answer, guessed=guessed, incorrectly_guessed=incorrectly_guessed, remaining_guesses=remaining_guesses)
+		return redirect(url_for('play'))
 
-@hangman-app.route("/win")
+@hangman_app.route("/win")
 @auth
-def win(answer):
-	return render_template("win.html", title="Win", answer=answer)
+def win():
+	if "___" in session['guessed']:
+		return redirect(url_for('play'))
+	return render_template("win.html", answer=session['answer'])
 
-@hangman-app.route("/loss")
+@hangman_app.route("/loss")
 @auth
-def loss(answer, guessed):
-	return render_template("loss.html", title="Loss", answer=answer, guessed=guessed)
+def loss():
+	if session.get('remaining_guesses') > 0:
+		return redirect(url_for('play'))
+	return render_template("loss.html", answer=session['answer'], guessed=session['guessed'])
 
-@hangman-app.route("/scores")
+@hangman_app.route("/scores")
 @auth
 def scores():
 	scores = model.User.query.order_by(model.User.wins.desc()).all()
 	top_scores = scores[0:5]
-	return render_template("scores.html", title="Scores", top_scores=top_scores)
+	return render_template("scores.html", top_scores=top_scores)
