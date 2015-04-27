@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+{% block nav %}
+<li><a href="{{ url_for('play') }}">Play</a></li>
+{% endblock %}
+{% block content %}
+<div class="container">
+  <h2>Top Scores</h2>           
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>Wins</th>
+        <th>Loses</th>
+      </tr>
+    </thead>
+    {% for score in top_scores %}
+    <tbody>
+      <tr>
+        <td>{{ score.username }}</td>
+        <td>{{ score.wins }}</td>
+        <td>{{ score.loses }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}
