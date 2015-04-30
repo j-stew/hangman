@@ -130,6 +130,13 @@ def play():
 	if guess in session['incorrectly_guessed']:
 		flash('"{}" already guessed. Please guess a new letter.'.format(guess))
 		return redirect(url_for('play'))
+		
+	# move logic in code below 
+		# guess
+		# answer 
+		# score
+			# make the methods from 'verbs'
+			# will make adding features easier
 
 	session['remaining_guesses'] -= 1
 
