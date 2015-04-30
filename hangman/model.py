@@ -36,7 +36,7 @@ class Game(db.Model):
 	status = db.Column(db.String(4))
 	guessed = db.Column(db.String(200))
 	answer = db.Column(db.String(200))
-	username = db.Column(db.String(80))
+	username = db.Column(db.String(80)) #  implement as user_id from user table, integer, one-to-many
 
 	def __init__(self, status, guessed, answer, username):
 		self.status = status
