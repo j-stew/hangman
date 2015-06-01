@@ -1,19 +1,7 @@
-from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
 from hangman import hangman_app
 
 db = SQLAlchemy(hangman_app)
-db.create_all()
-db.session.commit()
-
-'''
-Setup:
-db.create_all()
-words = open("hangman/words.txt", "r").read().split("', '")
-for word in words:
-	db.session.add(Word(word))
-db.session.commit()
-'''
 
 class User(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
@@ -64,3 +52,9 @@ class Word(db.Model):
 	@property
 	def blanks(self):
 		return " ".join(["___" for char in self.word])
+
+db.create_all()
+words = open("hangman/words.txt", "r").read().split("\n")
+for word in words:
+	db.session.add(Word(word))
+db.session.commit()
