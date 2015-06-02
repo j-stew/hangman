@@ -1,1 +1,1 @@
-web: gunicorn hangman-jess:app --log-file -
+web: python run.py
