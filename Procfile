@@ -1,1 +1,1 @@
-web: gunicorn hangman:app --log-file -
+web: gunicorn hangman-jess:app --log-file -
