@@ -1,3 +1,5 @@
+import os
+
 from hangman import hangman_app
 
 port = int(os.environ.get("PORT", 5000))
