@@ -1,3 +1,5 @@
+from random import randint
+
 from flask.ext.sqlalchemy import SQLAlchemy
 from hangman import hangman_app
 
@@ -52,6 +54,11 @@ class Word(db.Model):
 	@property
 	def blanks(self):
 		return " ".join(["___" for char in self.word])
+
+	@classmethod
+	def random_word(cls):
+		num = randint(1, cls.query.count()+1)
+		return cls.query.filter_by(id=num).first()
 
 db.create_all()
 words = open("hangman/words.txt", "r").read().split("\n")
