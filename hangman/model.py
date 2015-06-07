@@ -1,4 +1,5 @@
 from random import randint
+from datetime import datetime
 
 from flask.ext.sqlalchemy import SQLAlchemy
 from hangman import hangman_app
@@ -7,42 +8,47 @@ db = SQLAlchemy(hangman_app)
 
 class User(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
-	username = db.Column(db.String(80), unique=True)
-	password = db.Column(db.String(140))
-	wins = db.Column(db.Integer)
-	loses = db.Column(db.Integer)
+	username = db.Column(db.String(80), unique=True, nullable=False)
+	password = db.Column(db.String(140), nullable=False)
+	wins = db.Column(db.Integer, default=0)
+	loses = db.Column(db.Integer, default=0)
+	games = db.relationship("Game", backref="user", lazy="dynamic")
 
-	def __init__(self, username, password):
-		self.username = username
-		self.password = password
-		self.wins = 0
-		self.loses = 0
+	def __init__(self, username, password, wins=0, loses=0):
+		self.username=username
+		self.password=password
+		self.wins=wins
+		self.loses=loses
 
 	def __repr__(self):
 		return "User {}".format(self.username)
 
 class Game(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
-	status = db.Column(db.String(4))
+	created_date = db.Column(db.DateTime, default=datetime.utcnow())
+	status = db.Column(db.String(40))
 	guessed = db.Column(db.String(200))
 	answer = db.Column(db.String(200))
-	username = db.Column(db.String(80), db.ForeignKey("user.username"), nullable=False)
+	remaining_guesses = db.Column(db.Integer)
+	incorrectly_guessed = db.Column(db.String(400))
+	user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
 
-	def __init__(self, status, guessed, answer, username):
-		self.status = status
-		self.guessed = guessed
-		self.answer = answer
-		self.username = username
+	def __init__(self, status, guessed, answer, remaining_guesses, incorrectly_guessed):
+		self.status=status
+		self.guessed=guessed
+		self.answer=answer
+		self.remaining_guesses=remaining_guesses
+		self.incorrectly_guessed=incorrectly_guessed
 
 	def __repr__(self):
-		return "{} guessed {} which was a {}.".format(self.username, self.guessed, self.status)
+		return "Guessed {} which was status {}.".format(self.guessed, self.status)
 
 class Word(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
-	word = db.Column(db.String(200))
+	word = db.Column(db.String(200), nullable=False)
 
 	def __init__(self, word):
-		self.word = word
+		self.word=word
 
 	def __repr__(self):
 		return self.word
