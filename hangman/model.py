@@ -12,6 +12,7 @@ class User(db.Model):
 	password = db.Column(db.String(140), nullable=False)
 	wins = db.Column(db.Integer, default=0)
 	loses = db.Column(db.Integer, default=0)
+	games = db.relationship('Game', backref='user', lazy='dynamic')
 
 	def __init__(self, username, password):
 		self.username=username
@@ -32,42 +33,40 @@ class User(db.Model):
 		most_recent = games.filter_by(status='in-progress').order_by(Game.created_date.desc()).first()
 		return most_recent
 
-	# buggy
 	def latest_game(self):
-		games = Game.query.filter_by(username=self.username).order_by(Game.created_date.desc()).first()
+		return Game.query.filter_by(username=self.username).order_by(Game.created_date.desc()).first()
 
-# add one-to-many mapping to user
 class Game(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	created_date = db.Column(db.DateTime, default=datetime.utcnow())
 	status = db.Column(db.String(40), nullable=False)
 	answer = db.Column(db.String(200), nullable=False)
-	username = db.Column(db.String(200), nullable=False)
+	guesses = db.relationship('Guesses', backref='game', uselist=False)
+	user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-	def __init__(self, status, username):
+	def __init__(self, status, user):
 		self.created_date=datetime.utcnow()
 		self.status=status
 		self.answer=Word.random_word()
-		self.username=username
+		self.user_id=user.id
 
 	def __repr__(self):
-		return "{} has status {}.".format(self.username, self.status)
+		return "{} has status {}.".format(self.user.username, self.status)
 
-# add one-to-one mapping to game
 class Guesses(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	answer = db.Column(db.String(200), nullable=False)
 	correct_guesses = db.Column(db.String(200))
 	incorrect_guesses = db.Column(db.String(400))
 	remaining_guesses = db.Column(db.Integer, nullable=False)
-	#game_id = db.Column(db.Integer, nullable=False)
+	game_id = db.Column(db.Integer, db.ForeignKey('game.id'), nullable=False)
 
 	def __init__(self, game):
 		self.answer=game.answer
 		self.correct_guesses=self.get_blanks()
 		self.incorrect_guesses=''
 		self.remaining_guesses=self.possible_guesses()
-		#self.game_id=game.id
+		self.game_id=game.id
 
 	def __repr__(self):
 		return "Progress is {}".format(self.correct_guesses)

@@ -11,7 +11,7 @@ import model
 def auth(f):
 	@wraps(f)
 	def wrapper(*args, **kwargs):
-		if not session.get('username'):
+		if not session.get('user_id'):
 			flash('Must login to play')
 			return redirect(url_for('login'))
 		return f(*args, **kwargs)
@@ -35,7 +35,7 @@ def login():
 	 	flash("Password invalid. Please try again.")
 	 	return redirect(url_for('login'))
 
-	session['username'] = username
+	session['user_id'] = model.User.query.filter_by(username=username).first().id
 	return redirect(url_for('play'))
 
 @hangman_app.route("/signup", methods=["GET", "POST"])
@@ -52,7 +52,7 @@ def signup():
 		new_user = model.User(username, password)
 		model.db.session.add(new_user)
 		model.db.session.commit()
-		session['username'] = username
+		session['user_id'] = model.User.query.filter_by(username=username).first().id
 		return redirect(url_for('play'))
 
 @hangman_app.route("/logout", methods=["GET", "POST"])
@@ -64,10 +64,10 @@ def logout():
 @auth
 def play():
 	if not session.get('game_id'):
-	#if not model.User.get_user(session['username']).active_game():
-		game = model.Game(status='in-progress', username=session['username'])
-		guesses = model.Guesses(game)
+		game = model.Game(status='in-progress', user=model.User.query.filter_by(id=session['user_id']).first())
 		model.db.session.add(game)
+		model.db.session.commit()
+		guesses = model.Guesses(game)
 		model.db.session.add(guesses)
 		model.db.session.commit()
 		session['game_id']=game.id
@@ -97,7 +97,7 @@ def play():
 
 	guess = request.form.get('guess')
 	guesses = model.Guesses.query.filter_by(id=session['guesses_id']).first()
-	user = model.User.query.filter_by(username=session['username']).first()
+	user = model.User.query.filter_by(id=session['user_id']).first()
 	if guess in guesses.incorrect_guesses:
 		flash('"{}" already guessed. Please guess a new letter.'.format(guess))
 		return redirect(url_for('play'))
