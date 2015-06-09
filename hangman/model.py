@@ -23,10 +23,6 @@ class User(db.Model):
 	def __repr__(self):
 		return "User {}".format(self.username)
 
-	@classmethod
-	def get_user(cls, username):
-		return cls.query.filter_by(username=username).first()
-
 	# buggy
 	def active_game(self):
 		games = Game.query.filter_by(username=self.username)
@@ -77,19 +73,12 @@ class Guesses(db.Model):
 	def get_blanks(self):
 		return " ".join(["___" for char in self.answer])
 
-	def insert_guess(self, guess):
+	def insert_correct_guess(self, guess):
 		inserted = self.correct_guesses.split(" ")
 		positions = [i for i, char in enumerate(self.answer) if char == guess]
 		for position in positions:
 			inserted[position] = guess
 		self.correct_guesses = " ".join(inserted)
-
-	def process_guess(self, guess):
-		self.remaining_guesses -= 1
-		if guess in self.answer:
-			self.insert_guess(guess)
-		else:
-			self.incorrect_guesses += guess
 
 class Word(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
