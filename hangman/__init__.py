@@ -9,4 +9,4 @@ hangman_app.config['DEBUG'] = os.environ['DEBUG']
 hangman_app.config['HOST'] = os.environ['HOST']
 hangman_app.config['PORT'] = os.environ['PORT']
 
-from hangman import model, controller
+from hangman import model, controller, view

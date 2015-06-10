@@ -1,5 +1,4 @@
 import model
-from flask import flash, redirect, url_for
 
 def create_game(user_id):
 	game = model.Game(status='in-progress', user=model.User.query.filter_by(id=user_id).first())
@@ -10,16 +9,15 @@ def create_game(user_id):
 	model.db.session.commit()
 	return game, guesses
 
-def create_password(username, password):
+def create_user(username, password):
 	new_user = model.User(username, password)
 	model.db.session.add(new_user)
 	model.db.session.commit()
 
-def get_user(user):
-	if model.User.query.filter_by(id=user_id).first():
-		return model.User.query.filter_by(id=user_id).first()
-	elif model.User.query.filter_by(username=user_id).first()
-		return model.User.query.filter_by(username=user_id).first()
+def get_user(given_user):
+	if type(given_user)==int:
+		return model.User.query.filter_by(id=given_user).first()
+	return model.User.query.filter_by(username=given_user).first()
 
 def get_game(game_id):
 	return model.Game.query.filter_by(id=game_id).first()
@@ -29,14 +27,11 @@ def get_guesses(guesses_id):
 
 def validate_guess(guess, guesses):
 	if len(guess) > 1:
-		flash('Please guess a single letter.')
-		return redirect(url_for('play'))
+		return 'Please guess a single letter.'
 	elif guess not in 'abcdefghijklmnopqrstuvwxyz':
-		flash('Please guess a letter, not punction or numbers.')
-		return redirect(url_for('play'))
+		return 'Please guess a letter, not punction or numbers.'
 	elif guess in guesses.incorrect_guesses:
-		flash('"{}" already guessed. Please guess a new letter.'.format(guess))
-		return redirect(url_for('play'))
+		return '"{}" already guessed. Please guess a new letter.'.format(guess)
 
 def check_guess(guess, guesses):
 	guesses.remaining_guesses -= 1
@@ -58,15 +53,12 @@ def update_game(game, guesses, user):
 		model.db.session.commit()
 		return 'loss'
 
-def validate_login(given_username, given_password):
-	if not controller.get_user(username=given_username):
-		flash("Username not found. Please create account.")
-		return redirect(url_for('signup'))
-	elif controller.get_user(username=given_username).password!=given_password:
-	 	flash("Password invalid. Please try again.")
-	 	return redirect(url_for('login'))
+def validate_login(username, password):
+	if not get_user(username):
+		return "Username not found. Please create account.", 'signup'
+	elif get_user(username).password!=password:
+		return "Password invalid. Please try again.", 'login'
 
 def validate_signup(username, password):
-	if controller.get_user(username):
-		flash("Username already exists. Please try again.")
-		return redirect(url_for('signup'))
+	if get_user(username):
+		return "Username already exists. Please try again.", 'signup'

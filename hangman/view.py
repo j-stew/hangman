@@ -27,7 +27,10 @@ def signup():
 		return render_template('signup.html')
 
 	username, password = request.form.get('username'), request.form.get('password')
-	controller.validate_signup(username, password)
+	if controller.validate_signup(username, password):
+		message, url = controller.validate_signup(username, password)
+		flash(message)
+		return redirect(url_for(url))
 	controller.create_user(username, password)
 	session['user_id'] = controller.get_user(username).id
 	return redirect(url_for('play'))
@@ -38,7 +41,10 @@ def login():
 		return render_template('login.html')
 
 	username, password = request.form.get('username'), request.form.get('password')
-	controller.validate_login(username, password)
+	if controller.validate_login(username, password):
+		message, url = controller.validate_login(username, password)
+		flash(message)
+		return redirect(url_for(url))
 	session['user_id'] = controller.get_user(username).id
 	return redirect(url_for('play'))
 
@@ -61,8 +67,8 @@ def play():
 			)
 
 	if request.method=='GET':
-		game = model.Game.query.filter_by(id=session['game_id']).first()
-		guesses = model.Guesses.query.filter_by(id=session['guesses_id']).first()
+		game = controller.get_game(session['game_id'])
+		guesses = controller.get_guesses(session['guesses_id'])
 		return render_template('play.html', answer=guesses.answer,
 			remaining_guesses=guesses.remaining_guesses,
 			correct_guesses=guesses.correct_guesses,
@@ -75,15 +81,14 @@ def play():
 	game = controller.get_game(session['game_id'])
 
 	if guess:
-		controller.validate_guess(guess)
+		if controller.validate_guess(guess, guesses):
+			flash(controller.validate_guess(guess, guesses))
+			return redirect(url_for('play'))
 		controller.check_guess(guess, guesses)
 
-	if controller.update_game(game, guesses, user)=='win':
+	if controller.update_game(game, guesses, user):
 		del session['game_id']
-		return redirect(url_for('win'))
-	elif controller.update_game(game, guesses)=='loss':
-		del session['game_id']
-		return redirect(url_for('loss'))
+		return redirect(url_for(controller.update_game(game, guesses, user)))
 	else:
 		return redirect(url_for('play'))
 
@@ -92,7 +97,7 @@ def play():
 def win():
 	if session.get('game_id'):
 		return redirect(url_for('play'))
-	guesses = model.Guesses.query.filter_by(id=session['guesses_id']).first()
+	guesses = controller.get_guesses(session['guesses_id'])
 	return render_template("win.html", answer=guesses.answer)
 
 @hangman_app.route("/loss")
@@ -100,7 +105,7 @@ def win():
 def loss():
 	if session.get('game_id'):
 		return redirect(url_for('play'))
-	guesses = model.Guesses.query.filter_by(id=session['guesses_id']).first()
+	guesses = controller.get_guesses(session['guesses_id'])
 	return render_template("loss.html", answer=guesses.answer, correct_guesses=guesses.correct_guesses)
 
 @hangman_app.route("/scores")
