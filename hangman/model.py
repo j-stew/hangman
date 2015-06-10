@@ -23,15 +23,6 @@ class User(db.Model):
 	def __repr__(self):
 		return "User {}".format(self.username)
 
-	# buggy
-	def active_game(self):
-		games = Game.query.filter_by(username=self.username)
-		most_recent = games.filter_by(status='in-progress').order_by(Game.created_date.desc()).first()
-		return most_recent
-
-	def latest_game(self):
-		return Game.query.filter_by(username=self.username).order_by(Game.created_date.desc()).first()
-
 class Game(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	created_date = db.Column(db.DateTime, default=datetime.utcnow())
