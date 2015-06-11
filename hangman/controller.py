@@ -34,12 +34,11 @@ def validate_guess(guess, guesses):
 		return '"{}" already guessed. Please guess a new letter.'.format(guess)
 
 def check_guess(guess, guesses):
-	guess_lowered=guess.lower()
 	guesses.remaining_guesses -= 1
-	if guess_lowered in guesses.answer:
-		guesses.insert_correct_guess(guess_lowered)
+	if guess in guesses.answer:
+		guesses.insert_correct_guess(guess)
 	else:
-		guesses.incorrect_guesses += guess_lowered
+		guesses.incorrect_guesses += guess
 	db.session.commit()
 
 def update_game(game, guesses, user):

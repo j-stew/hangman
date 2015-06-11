@@ -88,7 +88,7 @@ class Word(db.Model):
 		num = randint(1, cls.query.count()+1)
 		return cls.query.filter_by(id=num).first().word
 
-# db.drop_all()
+db.drop_all()
 # db.session.remove()
 db.create_all()
 words = open("hangman/words.txt", "r").read().split("\n")

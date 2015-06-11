@@ -76,7 +76,7 @@ def play():
 			incorrect_guesses=guesses.incorrect_guesses
 			)
 
-	guess = request.form.get('guess')
+	guess = request.form.get('guess').lower()
 	guesses = get_guesses(session['guesses_id'])
 	user = get_user(session['user_id'])
 	game = get_game(session['game_id'])
