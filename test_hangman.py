@@ -1,8 +1,6 @@
-# setup client and test_db
-# teardown client and test_db
-# login
 import unittest
 import os
+from datetime import datetime
 
 import flask
 
@@ -15,8 +13,6 @@ class HangmanModelTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(self):
-        hangman.model.db.session.remove()
-        hangman.model.db.drop_all()
         hangman.model.db.create_all()
         words = open("hangman/words.txt", "r").read().split("\n")
         for word in words:
@@ -28,38 +24,40 @@ class HangmanModelTest(unittest.TestCase):
         hangman.model.db.session.remove()
         hangman.model.db.drop_all()
 
-    def test_word(self):
-        self.assertTrue(hangman.model.Word.query.count() > 100)
+    def test_create_word(self):
+        self.assertTrue(hangman.model.Word.query.count() > 0)
 
-    def test_user(self):
-        new_user = hangman.model.User('jess_test', '123_test')
-        hangman.model.db.session.add(new_user)
-        hangman.model.db.session.commit()
-        self.assertEqual(hangman.model.User.query.filter_by(username='jess_test').first().username,
-            'jess_test')
+    def test_create_user(self):
+        new_user = hangman.controller.create_user('jess_test', '123_test')
+        user=hangman.controller.get_user('jess_test')
+        self.assertTrue(user.id > 0)
+        self.assertEqual(user.username,'jess_test')
+        self.assertEqual(user.password,'123_test')
+        self.assertEqual(user.wins, 0)
+        self.assertEqual(user.loses, 0)
+        self.assertEqual(user.games.count(), 0)
 
-    def test_game(self):
-        new_user = hangman.model.User('lauren_test', '456_test')
-        hangman.model.db.session.add(new_user)
-        hangman.model.db.session.commit()
-        new_game = hangman.model.Game(status='in-progress',
-            user=hangman.model.User.query.filter_by(username='lauren_test').first())
-        hangman.model.db.session.add(new_game)
-        hangman.model.db.session.commit()
-        self.assertEqual(hangman.model.Game.query.count(), 1)
+    def test_create_game(self):
+        new_user=hangman.controller.create_user('lauren_test', '123_test')
+        user=hangman.controller.get_user('lauren_test')
+        game=hangman.controller.create_game(user.id)[0]
+        self.assertTrue(game.id)
+        self.assertTrue(game.created_date < datetime.utcnow())
+        self.assertEqual(game.status, 'in-progress')
+        self.assertTrue(len(game.answer)>0)
+        self.assertTrue(game.guesses.remaining_guesses>0)
+        self.assertTrue(game.user_id)
 
-    def test_guesses(self):
-        new_user = hangman.model.User('ryan_test', '789_test')
-        hangman.model.db.session.add(new_user)
-        hangman.model.db.session.commit()
-        new_game = hangman.model.Game(status='in-progress',
-            user=hangman.model.User.query.filter_by(username='ryan_test').first())
-        hangman.model.db.session.add(new_game)
-        hangman.model.db.session.commit()
-        new_guesses = hangman.model.Guesses(hangman.model.Game.query.first())
-        hangman.model.db.session.add(new_guesses)
-        hangman.model.db.session.commit()
-        self.assertEqual(hangman.model.Guesses.query.count(), 1)
+    def test_create_guesses(self):
+        new_user=hangman.controller.create_user('ryan_test', '789_test')
+        user=hangman.controller.get_user('ryan_test')
+        guesses=hangman.controller.create_game(user.id)[1]
+        self.assertTrue(guesses.id)
+        self.assertTrue(len(guesses.answer)>0)
+        self.assertFalse(guesses.correct_guesses.isalpha())
+        self.assertFalse(guesses.incorrect_guesses)
+        self.assertTrue(guesses.remaining_guesses>0)
+        self.assertTrue(guesses.game_id)
 
 class HangmanAccessTest(unittest.TestCase):
     @classmethod
@@ -93,9 +91,15 @@ class HangmanAccessTest(unittest.TestCase):
         resp = self.client.post('/login', data=data, follow_redirects=True)
         self.assertIn('Password invalid', resp.data)
 
-    def test_play_login_protected(self):
-        resp = self.client.get('/play', follow_redirects=True)
-        self.assertIn('Must login to play', resp.data)
+    def test_protected_page_on_logout(self):
+        data = {'username':'lauren_site_test', 'password':'lauren_site_test_123'}
+        self.client.post('/signup', data=data, follow_redirects=True)
+        login_resp = self.client.get('/play', follow_redirects=True)
+        self.assertNotIn('Must login to play', login_resp.data)
+
+        self.client.get('/logout', follow_redirects=True)
+        logout_resp = self.client.get('/play', follow_redirects=True)
+        self.assertIn('Must login to play', logout_resp.data)
 
 class HangmanPlayTest(unittest.TestCase):
     @classmethod
@@ -133,19 +137,48 @@ class HangmanPlayTest(unittest.TestCase):
         resp = self.client.post('/play', data=data, follow_redirects=True)
         self.assertIn('already guessed', resp.data)
 
-    def test_test(self):
+    def test_possible_guesses(self):
         with hangman.hangman_app.test_client() as client:
             data = {'username':'game_test', 'password':'game_test_123'}
             client.post('/login', data=data, follow_redirects=True)
-            print flask.request.path
-            guesses = hangman.controller.get_guesses(flask.session['guesses_id']).possible_guesses()
-            
-            for guess in range(0, guesses):
-                data = 'abcdefghijklmnopqrstuvwxyz'[guess]
-                client.post('/play', data=data, follow_redirects=True)
-                
-            print flask.request.path
+            guesses = hangman.controller.get_guesses(flask.session['guesses_id'])
 
+
+            for guess in range(0, guesses.possible_guesses()):
+                data = {'guess':'abcdefghijklmnopqrstuvwxyz'[guess]}
+                client.post('/play', data=data, follow_redirects=True)
+
+            guesses = hangman.controller.get_guesses(flask.session['guesses_id'])
+            self.assertEqual(guesses.remaining_guesses, 0)
+
+    def test_win_loss_redirect(self):
+        with hangman.hangman_app.test_client() as client:
+            data = {'username':'game_test', 'password':'game_test_123'}
+            client.post('/login', data=data, follow_redirects=True)
+            guesses = hangman.controller.get_guesses(flask.session['guesses_id'])
+
+
+            for guess in range(0, guesses.possible_guesses()):
+                data = {'guess':'abcdefghijklmnopqrstuvwxyz'[guess]}
+                client.post('/play', data=data, follow_redirects=True)
+
+            path=flask.request.path
+            self.assertIn(path, '/win/loss')
+
+    def test_scores_update(self):
+        with hangman.hangman_app.test_client() as client:
+            data = {'username':'game_test', 'password':'game_test_123'}
+            client.post('/login', data=data, follow_redirects=True)
+            guesses = hangman.controller.get_guesses(flask.session['guesses_id'])
+            for guess in range(0, guesses.possible_guesses()):
+                data = {'guess':'abcdefghijklmnopqrstuvwxyz'[guess]}
+                client.post('/play', data=data, follow_redirects=True)
+
+            resp = client.get('/scores', follow_redirects=True)
+            user = hangman.controller.get_user('game_test')
+
+            self.assertEqual(resp.status, '200 OK')
+            self.assertTrue(user.wins > 0 or user.loses > 0)
 
 if __name__ == '__main__':
     unittest.main()

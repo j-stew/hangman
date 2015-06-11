@@ -1,7 +1,7 @@
 import model
 
 def create_game(user_id):
-	game = model.Game(status='in-progress', user=model.User.query.filter_by(id=user_id).first())
+	game = model.Game(status='in-progress', user=get_user(user_id))
 	model.db.session.add(game)
 	model.db.session.commit()
 	guesses = model.Guesses(game)
