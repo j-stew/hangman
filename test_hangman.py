@@ -6,30 +6,30 @@ import flask
 
 os.environ['DATABASE_URL'] = 'postgres://localhost/test_hangman'
 
-import hangman
-hangman.hangman_app.config['TESTING']=True
+from hangman import controller, model, hangman_app
+hangman_app.config['TESTING']=True
 
 class HangmanModelTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(self):
-        hangman.model.db.create_all()
+        model.db.create_all()
         words = open("hangman/words.txt", "r").read().split("\n")
         for word in words:
-            hangman.model.db.session.add(hangman.model.Word(word))
-        hangman.model.db.session.commit()
+            model.db.session.add(model.Word(word))
+        model.db.session.commit()
 
     @classmethod
     def tearDownClass(self):
-        hangman.model.db.session.remove()
-        hangman.model.db.drop_all()
+        model.db.session.remove()
+        model.db.drop_all()
 
     def test_create_word(self):
-        self.assertTrue(hangman.model.Word.query.count() > 0)
+        self.assertTrue(model.Word.query.count() > 0)
 
     def test_create_user(self):
-        new_user = hangman.controller.create_user('jess_test', '123_test')
-        user=hangman.controller.get_user('jess_test')
+        new_user = controller.create_user('jess_test', '123_test')
+        user=controller.get_user('jess_test')
         self.assertTrue(user.id > 0)
         self.assertEqual(user.username,'jess_test')
         self.assertEqual(user.password,'123_test')
@@ -38,9 +38,9 @@ class HangmanModelTest(unittest.TestCase):
         self.assertEqual(user.games.count(), 0)
 
     def test_create_game(self):
-        new_user=hangman.controller.create_user('lauren_test', '123_test')
-        user=hangman.controller.get_user('lauren_test')
-        game=hangman.controller.create_game(user.id)[0]
+        new_user=controller.create_user('lauren_test', '123_test')
+        user=controller.get_user('lauren_test')
+        game=controller.create_game(user.id)[0]
         self.assertTrue(game.id)
         self.assertTrue(game.created_date < datetime.utcnow())
         self.assertEqual(game.status, 'in-progress')
@@ -49,9 +49,9 @@ class HangmanModelTest(unittest.TestCase):
         self.assertTrue(game.user_id)
 
     def test_create_guesses(self):
-        new_user=hangman.controller.create_user('ryan_test', '789_test')
-        user=hangman.controller.get_user('ryan_test')
-        guesses=hangman.controller.create_game(user.id)[1]
+        new_user=controller.create_user('ryan_test', '789_test')
+        user=controller.get_user('ryan_test')
+        guesses=controller.create_game(user.id)[1]
         self.assertTrue(guesses.id)
         self.assertTrue(len(guesses.answer)>0)
         self.assertFalse(guesses.correct_guesses.isalpha())
@@ -62,21 +62,21 @@ class HangmanModelTest(unittest.TestCase):
 class HangmanAccessTest(unittest.TestCase):
     @classmethod
     def setUpClass(self):
-        hangman.model.db.session.remove()
-        hangman.model.db.drop_all()
-        hangman.model.db.create_all()
+        model.db.session.remove()
+        model.db.drop_all()
+        model.db.create_all()
         words = open("hangman/words.txt", "r").read().split("\n")
         for word in words:
-            hangman.model.db.session.add(hangman.model.Word(word))
-        hangman.model.db.session.commit()
+            model.db.session.add(model.Word(word))
+        model.db.session.commit()
 
     @classmethod
     def tearDownClass(self):
-        hangman.model.db.session.remove()
-        hangman.model.db.drop_all()
+        model.db.session.remove()
+        model.db.drop_all()
 
     def setUp(self):
-        self.client = hangman.hangman_app.test_client()
+        self.client = hangman_app.test_client()
 
     def test_invalid_user(self):
         data = {'username':'invalid', 'password':'invalid'}
@@ -104,22 +104,22 @@ class HangmanAccessTest(unittest.TestCase):
 class HangmanPlayTest(unittest.TestCase):
     @classmethod
     def setUpClass(self):
-        hangman.model.db.session.remove()
-        hangman.model.db.drop_all()
-        hangman.model.db.create_all()
+        model.db.session.remove()
+        model.db.drop_all()
+        model.db.create_all()
         words = open("hangman/words.txt", "r").read().split("\n")
         for word in words:
-            hangman.model.db.session.add(hangman.model.Word(word))
-        hangman.model.db.session.commit()
+            model.db.session.add(model.Word(word))
+        model.db.session.commit()
 
-        self.client = hangman.hangman_app.test_client()
+        self.client = hangman_app.test_client()
         data = {'username':'game_test', 'password':'game_test_123'}
         self.client.post('/signup', data=data, follow_redirects=True)
 
     @classmethod
     def tearDownClass(self):
-        hangman.model.db.session.remove()
-        hangman.model.db.drop_all()
+        model.db.session.remove()
+        model.db.drop_all()
 
     def test_invalid_guess_length(self):
         data = {'guess':'aa'}
@@ -138,24 +138,24 @@ class HangmanPlayTest(unittest.TestCase):
         self.assertIn('already guessed', resp.data)
 
     def test_possible_guesses(self):
-        with hangman.hangman_app.test_client() as client:
+        with hangman_app.test_client() as client:
             data = {'username':'game_test', 'password':'game_test_123'}
             client.post('/login', data=data, follow_redirects=True)
-            guesses = hangman.controller.get_guesses(flask.session['guesses_id'])
+            guesses = controller.get_guesses(flask.session['guesses_id'])
 
 
             for guess in range(0, guesses.possible_guesses()):
                 data = {'guess':'abcdefghijklmnopqrstuvwxyz'[guess]}
                 client.post('/play', data=data, follow_redirects=True)
 
-            guesses = hangman.controller.get_guesses(flask.session['guesses_id'])
+            guesses = controller.get_guesses(flask.session['guesses_id'])
             self.assertEqual(guesses.remaining_guesses, 0)
 
     def test_win_loss_redirect(self):
-        with hangman.hangman_app.test_client() as client:
+        with hangman_app.test_client() as client:
             data = {'username':'game_test', 'password':'game_test_123'}
             client.post('/login', data=data, follow_redirects=True)
-            guesses = hangman.controller.get_guesses(flask.session['guesses_id'])
+            guesses = controller.get_guesses(flask.session['guesses_id'])
 
 
             for guess in range(0, guesses.possible_guesses()):
@@ -166,16 +166,16 @@ class HangmanPlayTest(unittest.TestCase):
             self.assertIn(path, '/win/loss')
 
     def test_scores_update(self):
-        with hangman.hangman_app.test_client() as client:
+        with hangman_app.test_client() as client:
             data = {'username':'game_test', 'password':'game_test_123'}
             client.post('/login', data=data, follow_redirects=True)
-            guesses = hangman.controller.get_guesses(flask.session['guesses_id'])
+            guesses = controller.get_guesses(flask.session['guesses_id'])
             for guess in range(0, guesses.possible_guesses()):
                 data = {'guess':'abcdefghijklmnopqrstuvwxyz'[guess]}
                 client.post('/play', data=data, follow_redirects=True)
 
             resp = client.get('/scores', follow_redirects=True)
-            user = hangman.controller.get_user('game_test')
+            user = controller.get_user('game_test')
 
             self.assertEqual(resp.status, '200 OK')
             self.assertTrue(user.wins > 0 or user.loses > 0)
