@@ -30,7 +30,7 @@ def validate_guess(guess, guesses):
 		return 'Please guess a single letter.'
 	elif guess not in 'abcdefghijklmnopqrstuvwxyz':
 		return 'Please guess a letter, not punction or numbers.'
-	elif guess in guesses.incorrect_guesses:
+	elif guess in guesses.incorrect_guesses or guess in guesses.correct_guesses:
 		return '"{}" already guessed. Please guess a new letter.'.format(guess)
 
 def check_guess(guess, guesses):
