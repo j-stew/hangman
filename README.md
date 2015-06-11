@@ -1,3 +1,5 @@
+NOT UP-TO-DATE! Distribution details coming soon
+
 git clone git@github.com:jessicastewart/hangman.git
 
 mkvirtualenv hangman
