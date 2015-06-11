@@ -21,7 +21,8 @@ class User(db.Model):
 		self.loses=0
 
 	def __repr__(self):
-		return "User {}".format(self.username)
+		return "username={}, password={}, wins={}, loses={}".format(self.username,
+			self.password, self.wins, self.loses)
 
 class Game(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
@@ -38,7 +39,7 @@ class Game(db.Model):
 		self.user_id=user.id
 
 	def __repr__(self):
-		return "User={}. Game status={}.".format(self.user.username, self.status)
+		return "created_date={}, status={}, answer={}.".format(self.created_date, self.status, self.answer)
 
 class Guesses(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
@@ -56,8 +57,8 @@ class Guesses(db.Model):
 		self.game_id=game.id
 
 	def __repr__(self):
-		return "Game progress={}. Answer={}. Incorrect guesses={}. Remaining guesses={}.".format(self.correct_guesses, 
-			self.answer, self.incorrect_guesses, self.remaining_guesses)
+		return "answer={}. correct_guesses={}, incorrect_guesses={}. remaining_guesses={}.".format(self.answer,
+			self.correct_guesses, self.incorrect_guesses, self.remaining_guesses)
 
 	def possible_guesses(self):
 		return len(self.answer)
@@ -80,7 +81,7 @@ class Word(db.Model):
 		self.word=word
 
 	def __repr__(self):
-		return self.word
+		return "word={}".format(self.word)
 
 	@classmethod
 	def random_word(cls):
