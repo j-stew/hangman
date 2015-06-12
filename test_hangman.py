@@ -9,6 +9,13 @@ os.environ['DATABASE_URL'] = 'postgres://localhost/test_hangman'
 from hangman import controller, model, hangman_app
 hangman_app.config['TESTING']=True
 
+print hangman_app.config['SQLALCHEMY_DATABASE_URI']
+print hangman_app.config['SECRET_KEY']
+print hangman_app.config['DEBUG']
+print hangman_app.config['HOST']
+print hangman_app.config['PORT']
+print hangman_app.config['TESTING']
+
 class HangmanModelTest(unittest.TestCase):
 
     @classmethod
@@ -146,6 +153,20 @@ class HangmanPlayTest(unittest.TestCase):
 
             for guess in range(0, guesses.possible_guesses()):
                 data = {'guess':'abcdefghijklmnopqrstuvwxyz'[guess]}
+                client.post('/play', data=data, follow_redirects=True)
+
+            guesses = controller.get_guesses(flask.session['guesses_id'])
+            self.assertEqual(guesses.remaining_guesses, 0)
+
+    def test_mixed_guess_casing(self):
+        with hangman_app.test_client() as client:
+            data = {'username':'game_test', 'password':'game_test_123'}
+            client.post('/login', data=data, follow_redirects=True)
+            guesses = controller.get_guesses(flask.session['guesses_id'])
+
+
+            for guess in range(0, guesses.possible_guesses()):
+                data = {'guess':'AbCdEfGhIjKlMnOpQrStUvWxYz'[guess]}
                 client.post('/play', data=data, follow_redirects=True)
 
             guesses = controller.get_guesses(flask.session['guesses_id'])
