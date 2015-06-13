@@ -10,9 +10,10 @@ def create_game(user_id):
 	return game, guesses
 
 def create_user(username, password):
-	new_user = User(username, password)
-	db.session.add(new_user)
+	user = User(username, password)
+	db.session.add(user)
 	db.session.commit()
+	return user
 
 def get_user(given_user):
 	if type(given_user)==int:
@@ -33,26 +34,6 @@ def validate_guess(guess, guesses):
 	elif guess in guesses.incorrect_guesses or guess in guesses.correct_guesses:
 		return '"{}" already guessed. Please guess a new letter.'.format(guess)
 
-def check_guess(guess, guesses):
-	guesses.remaining_guesses -= 1
-	if guess in guesses.answer:
-		guesses.insert_correct_guess(guess)
-	else:
-		guesses.incorrect_guesses += guess
-	db.session.commit()
-
-def update_game(game, guesses, user):
-	if "___" not in guesses.correct_guesses:
-		game.status='win'
-		user.wins += 1
-		db.session.commit()
-		return 'win'
-	elif guesses.remaining_guesses <= 0:
-		game.status='loss'
-		user.loses += 1
-		db.session.commit()
-		return 'loss'
-
 def validate_login(username, password):
 	if not get_user(username):
 		return "Username not found. Please create account.", 'signup'
@@ -61,4 +42,27 @@ def validate_login(username, password):
 
 def validate_signup(username, password):
 	if get_user(username):
-		return "Username already exists. Please try again.", 'signup'
+		return "Username already exists. Please try again."
+
+def check_game(guesses):
+	return "___" not in guesses.correct_guesses or guesses.remaining_guesses <= 0
+
+def update_game(guesses):
+	if "___" not in guesses.correct_guesses:
+		guesses.game.status='win'
+		guesses.game.user.wins += 1
+		db.session.commit()
+		return 'win'
+	elif guesses.remaining_guesses <= 0:
+		guesses.game.status='loss'
+		guesses.game.user.loses += 1
+		db.session.commit()
+		return 'loss'
+
+def update_guesses(guess, guesses):
+	guesses.remaining_guesses -= 1
+	if guess in guesses.answer:
+		guesses.insert_correct_guess(guess)
+	else:
+		guesses.incorrect_guesses += guess
+	db.session.commit()

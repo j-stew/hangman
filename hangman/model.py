@@ -3,8 +3,10 @@ from datetime import datetime
 
 from flask.ext.sqlalchemy import SQLAlchemy
 from hangman import hangman_app
+from flask import session
 
 db = SQLAlchemy(hangman_app)
+db.create_all()
 
 class User(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
@@ -88,10 +90,12 @@ class Word(db.Model):
 		num = randint(1, cls.query.count()+1)
 		return cls.query.filter_by(id=num).first().word
 
-db.drop_all()
-# db.session.remove()
+	@staticmethod
+	def add_words():
+		words = open("hangman/words.txt", "r").read().split("\n")
+		for word in words:
+			db.session.add(Word(word))
+		db.session.commit()
+
 db.create_all()
-words = open("hangman/words.txt", "r").read().split("\n")
-for word in words:
-	db.session.add(Word(word))
-db.session.commit()
+Word.add_words()
