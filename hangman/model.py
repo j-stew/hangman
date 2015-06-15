@@ -44,6 +44,10 @@ class Game(db.Model):
 		return "created_date={}, status={}, answer={}.".format(self.created_date, self.status, self.answer)
 
 class Guesses(db.Model):
+	"""1-to-1 relationship with Game, isolated due to guess-specific computation.
+	Object name is plural to differentiate from singular guesses made by user. Guesses
+	contains the current game progress given user guesses. 
+	"""
 	id = db.Column(db.Integer, primary_key=True)
 	answer = db.Column(db.String(200), nullable=False)
 	correct_guesses = db.Column(db.String(200))
@@ -76,6 +80,7 @@ class Guesses(db.Model):
 		self.correct_guesses = " ".join(inserted)
 
 class Word(db.Model):
+	"""Word bank of possible words for game, pulled from words.txt"""
 	id = db.Column(db.Integer, primary_key=True)
 	word = db.Column(db.String(200), nullable=False)
 

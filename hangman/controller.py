@@ -1,6 +1,15 @@
+"""
+Function naming is indicative of behavior:
+	'create' creates and returns objects
+	'get' fetches objects
+	'update' changes objects
+	'validate' checks user input and returns messages for invalid input
+"""
+
 from model import User, Game, Guesses, Word, db
 
 def create_game(user_id):
+	"""Returns game and guesses objects which have a 1-to-1 relationship"""
 	game = Game(status='in-progress', user=get_user(user_id))
 	db.session.add(game)
 	db.session.commit()
@@ -16,6 +25,7 @@ def create_user(username, password):
 	return user
 
 def get_user(given_user):
+	"""Takes both username and user_id as argument"""
 	if type(given_user)==int:
 		return User.query.filter_by(id=given_user).first()
 	return User.query.filter_by(username=given_user).first()
@@ -26,28 +36,8 @@ def get_game(game_id):
 def get_guesses(guesses_id):
 	return Guesses.query.filter_by(id=guesses_id).first()
 
-def validate_guess(guess, guesses):
-	if len(guess) > 1:
-		return 'Please guess a single letter.'
-	elif not guess.isalpha():
-		return 'Please guess a letter, not punction or numbers.'
-	elif guess in guesses.incorrect_guesses or guess in guesses.correct_guesses:
-		return '"{}" already guessed. Please guess a new letter.'.format(guess)
-
-def validate_login(username, password):
-	if not get_user(username):
-		return "Username not found. Please create account.", 'signup'
-	elif get_user(username).password!=password:
-		return "Password invalid. Please try again.", 'login'
-
-def validate_signup(username, password):
-	if get_user(username):
-		return "Username already exists. Please try again."
-
-def check_game(guesses):
-	return "___" not in guesses.correct_guesses or guesses.remaining_guesses <= 0
-
 def update_game(guesses):
+	"""Returns game status as string to determine view"""
 	if "___" not in guesses.correct_guesses:
 		guesses.game.status='win'
 		guesses.game.user.wins += 1
@@ -66,3 +56,25 @@ def update_guesses(guess, guesses):
 	else:
 		guesses.incorrect_guesses += guess
 	db.session.commit()
+
+def check_game(guesses):
+	"""Utility for update_game that determines if game status should be updated"""
+	return "___" not in guesses.correct_guesses or guesses.remaining_guesses <= 0
+
+def validate_guess(guess, guesses):
+	if len(guess) > 1:
+		return 'Please guess a single letter.'
+	elif not guess.isalpha():
+		return 'Please guess a letter, not punction or numbers.'
+	elif guess in guesses.incorrect_guesses or guess in guesses.correct_guesses:
+		return '"{}" already guessed. Please guess a new letter.'.format(guess)
+
+def validate_login(username, password):
+	if not get_user(username):
+		return "Username not found. Please create account.", 'signup'
+	elif get_user(username).password!=password:
+		return "Password invalid. Please try again.", 'login'
+
+def validate_signup(username, password):
+	if get_user(username):
+		return "Username already exists. Please try again."

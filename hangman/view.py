@@ -1,3 +1,8 @@
+"""
+User, game and guess IDs stored in HTTP session cookie. Game-state persists on page
+re-load but not on logout. 
+"""
+
 from functools import wraps
 from random import randint
 from flask import render_template, redirect, request, flash, session, url_for
@@ -7,9 +12,6 @@ from model import User
 from controller import validate_signup, validate_login, validate_guess, get_user, \
 get_guesses, get_game, create_game, create_user, update_guesses, check_game, update_game
 
-######################
-###HELPER FUNCTIONS###
-######################
 def auth(f):
 	@wraps(f)
 	def wrapper(*args, **kwargs):
@@ -19,9 +21,6 @@ def auth(f):
 		return f(*args, **kwargs)
 	return wrapper
 
-############
-###ROUTES###
-############
 @hangman_app.route("/")
 def index():
 	return redirect(url_for('login'))
