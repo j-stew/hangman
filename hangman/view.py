@@ -65,20 +65,12 @@ def play():
 		game, guesses=create_game(session['user_id'])
 		session['game_id']=game.id
 		session['guesses_id']=guesses.id
-		return render_template('play.html',
-			remaining_guesses=guesses.remaining_guesses,
-			correct_guesses=guesses.correct_guesses,
-			incorrect_guesses=guesses.incorrect_guesses
-			)
+		return render_template('play.html', guesses=guesses)
 
 	if request.method=='GET':
 		game = get_game(session['game_id'])
 		guesses = get_guesses(session['guesses_id'])
-		return render_template('play.html',
-			remaining_guesses=guesses.remaining_guesses,
-			correct_guesses=guesses.correct_guesses,
-			incorrect_guesses=guesses.incorrect_guesses
-			)
+		return render_template('play.html', guesses=guesses)
 
 	guess = request.form.get('guess').lower()
 	guesses = get_guesses(session['guesses_id'])
@@ -104,7 +96,7 @@ def win():
 	if get_game(session.get('game_id')):
 		return redirect(url_for('play'))
 	guesses = get_guesses(session['guesses_id'])
-	return render_template("win.html", answer=guesses.answer)
+	return render_template("win.html", guesses=guesses)
 
 @hangman_app.route("/loss")
 @auth
@@ -112,7 +104,7 @@ def loss():
 	if get_game(session.get('game_id')):
 		return redirect(url_for('play'))
 	guesses = get_guesses(session['guesses_id'])
-	return render_template("loss.html", answer=guesses.answer, correct_guesses=guesses.correct_guesses)
+	return render_template("loss.html", guesses=guesses)
 
 @hangman_app.route("/scores")
 @auth

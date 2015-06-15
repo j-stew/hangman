@@ -123,6 +123,7 @@ class Hangmanest(unittest.TestCase):
             if guesses.answer[answer_i] != alphabet[alphabet_i]:
                 update_guesses(alphabet[alphabet_i], guesses)
                 answer_i += 1
+                alphabet_i += 1
             else:
                 alphabet_i += 1
         self.assertTrue(check_game(guesses))

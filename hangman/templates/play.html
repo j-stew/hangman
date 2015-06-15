@@ -20,18 +20,18 @@
 </div>
 </form>
 <br>
-<p>Remaining guesses: <span class="badge">{{ remaining_guesses }}</span></p>
+<p>Remaining guesses: <span class="badge">{{ guesses.remaining_guesses }}</span></p>
 <div class="col-sm-5"</div>
 	<div class="panel panel-success">
     	<div class="panel-heading">Progress</div>
-    	<div class="panel-body">{{ correct_guesses }}</div>
+    	<div class="panel-body">{{ guesses.correct_guesses }}</div>
 	</div>
 </div>
 
 <div class="col-sm-5"</div>
 	<div class="panel panel-danger">
     	<div class="panel-heading">Incorrect guesses</div>
-    	<div class="panel-body">{{ incorrect_guesses }}</div>
+    	<div class="panel-body">{{ guesses.incorrect_guesses }}</div>
   	</div>
 </div>
 {% endblock %}

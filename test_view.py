@@ -75,7 +75,8 @@ class HangmanAccessTest(unittest.TestCase):
         with hangman_app.test_client() as client:
             data = {'username':'lee_test', 'password':'123_test'}
             resp = client.post('/signup', data=data, follow_redirects=True)
-            self.assertEqual(flask.request.path, '/play')
+            path=flask.request.path
+            self.assertEqual(path, '/play')
 
     def test_login_play_redirect(self):
         with hangman_app.test_client() as client:
@@ -155,16 +156,15 @@ class HangmanPlayTest(unittest.TestCase):
         resp = self.client.post('/play', data=data, follow_redirects=True)
         self.assertIn('already guessed', resp.data)
 
-    # def test_win_redirect(self):
-    #     with hangman_app.test_client() as client:
-    #         data = {'username':'lauren_test', 'password':'123_test'}
-    #         client.post('/signup', data=data, follow_redirects=True)
-    #         answer=get_guesses(flask.session['guesses_id']).answer
-    #         for letter in answer:
-    #             client.post('/play', data={'guess':letter}, follow_redirects=True)
-    #             path=flask.request.path
-    #             print path
-    #         self.assertEqual(path, '/win')
+    def test_win_redirect(self):
+        with hangman_app.test_client() as client:
+            data = {'username':'lauren_test', 'password':'123_test'}
+            client.post('/signup', data=data, follow_redirects=True)
+            answer=get_guesses(flask.session['guesses_id']).answer
+            for letter in answer:
+                client.post('/play', data={'guess':letter}, follow_redirects=True)
+            path=flask.request.path
+            self.assertEqual(path, '/win')
 
     def test_loss_redirect(self):
         with hangman_app.test_client() as client:
@@ -175,7 +175,7 @@ class HangmanPlayTest(unittest.TestCase):
             answer_i = 0
             while len(answer) > answer_i:
                 if answer[answer_i] != alphabet[alphabet_i]:
-                    client.post('/play', data={'guess':alphabet[alphabet_i]}, follow_redirects=True)
+                    client.post('/play', data={'guess':alphabet[answer_i]}, follow_redirects=True)
                     answer_i += 1
                 else:
                     alphabet_i += 1
