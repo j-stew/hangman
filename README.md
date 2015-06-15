@@ -1,13 +1,23 @@
-NOT UP-TO-DATE! Distribution details coming soon
+#!/bin/bash
+git clone https://github.com/j-stew/hangman.git
+cd hangman
 
-git clone git@github.com:jessicastewart/hangman.git
-
-mkvirtualenv hangman
+virtualenv hangman_env
+source hangman_env/bin/activate
 
 pip install -r requirements.txt
 
-In hangman/hangman/__init__.py, replace YOUR_COMPS_USERNAME with local username
+export DATABASE_URL=postgres://localhost/hangman
+export DEBUG=True
+export HOST=127.0.0.1
+export PORT=5000
+
+psql -c 'CREATE DATABASE hangman'
+psql -c 'CREATE DATABASE test_hangman'
+
+python test_model.py
+python test_controller.py
+python test_view.py
 
 python run.py
-
-Navigate to http://127.0.0.1:5000/login
+open http://127.0.0.1:5000/login
