@@ -1,16 +1,37 @@
-{% extends "layout.html" %}
-{% block nav %}
-<li><a href="{{ url_for('scores') }}">Scores</a></li>
-{% endblock %}
-{% block content %}
+{% extends "layout_inside.html" %}
+{% block page %}
 <h1>Guess a letter!</h1>
-    <form method="post" action="{{ url_for('play') }}">
-    <p><input type="text" name="guess" required></p>
-    <br>
-    <br>
-    <p><button type="submit">Send</button></p>
-    </form>
-<h1>Progress: {{ correct_guesses }}</h1>
-<h1>Incorrectly guessed: {{ incorrect_guesses }}</h1>
-<h1>Remaining guesses: {{ remaining_guesses }}</h1>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-danger">
+      <strong>{{ message }}</strong>
+    </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<form class="form-inline" role="form" method="post" action="{{ url_for('play') }}">
+<div class="form-group">
+<label for="guess">Guess:</label>
+<input type="text" class="form-control" name="guess" placeholder="Enter guess" required>
+<button type="submit" class="btn btn-default">Submit</button>
+</div>
+</form>
+<br>
+<p>Remaining guesses: <span class="badge">{{ remaining_guesses }}</span></p>
+<div class="col-sm-5"</div>
+	<div class="panel panel-success">
+    	<div class="panel-heading">Progress</div>
+    	<div class="panel-body">{{ correct_guesses }}</div>
+	</div>
+</div>
+
+<div class="col-sm-5"</div>
+	<div class="panel panel-danger">
+    	<div class="panel-heading">Incorrect guesses</div>
+    	<div class="panel-body">{{ incorrect_guesses }}</div>
+  	</div>
+</div>
 {% endblock %}

@@ -1,11 +1,8 @@
-{% extends "layout.html" %}
-{% block nav %}
-<li><a href="{{ url_for('play') }}">Play</a></li>
-{% endblock %}
-{% block content %}
+{% extends "layout_inside.html" %}
+{% block page %}
 <div class="container">
-  <h2>Top Scores</h2>           
-  <table class="table table-striped">
+  <h1>Top Scores</h1>           
+  <table class="table table-hover">
     <thead>
       <tr>
         <th>Username</th>
@@ -16,7 +13,7 @@
     {% for score in top_scores %}
     <tbody>
       <tr>
-        <td>{{ score.username }}</td>
+        <td class="text-capitalize">{{ score.username }}</td>
         <td>{{ score.wins }}</td>
         <td>{{ score.loses }}</td>
       </tr>

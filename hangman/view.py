@@ -65,7 +65,7 @@ def play():
 		game, guesses=create_game(session['user_id'])
 		session['game_id']=game.id
 		session['guesses_id']=guesses.id
-		return render_template('play.html', answer=guesses.answer,
+		return render_template('play.html',
 			remaining_guesses=guesses.remaining_guesses,
 			correct_guesses=guesses.correct_guesses,
 			incorrect_guesses=guesses.incorrect_guesses
@@ -74,7 +74,7 @@ def play():
 	if request.method=='GET':
 		game = get_game(session['game_id'])
 		guesses = get_guesses(session['guesses_id'])
-		return render_template('play.html', answer=guesses.answer,
+		return render_template('play.html',
 			remaining_guesses=guesses.remaining_guesses,
 			correct_guesses=guesses.correct_guesses,
 			incorrect_guesses=guesses.incorrect_guesses
@@ -94,7 +94,7 @@ def play():
 
 	if check_game(guesses):
 		del session['game_id']
-		return redirect(url_for(update_game(game, guesses, user)))
+		return redirect(url_for(update_game(guesses)))
 	else:
 		return redirect(url_for('play'))
 

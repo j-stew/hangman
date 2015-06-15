@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Hangman</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+  <style>
+    th { font-size: large }
+    tr { font-size: large }
+    .alert { width: 30%; }
+  </style>
+</head>
+<body>
+  <div class="container-fluid">
+
+    <div class="jumbotron">
+    <h1>Hangman</h1>      
+    </div>
+
+    <div class="content">
+
+      <div class="col-sm-2"</div>
+        <ul class="nav nav-pills nav-stacked">
+          <li><a href="{{ url_for('play')}}">Play</a></li>
+          <li><a href="{{ url_for('scores')}}">Scores</a></li>
+          <li><a href="{{ url_for('logout')}}">Logout</a></li>
+        </ul>
+      </div>
+
+      <div class="col-sm-10"</div>
+        {% block page %}
+        {% endblock %}
+      </div>
+
+      <br>
+      <br>
+      <br>    
+
+  </div>
+</body>
+</html>
+

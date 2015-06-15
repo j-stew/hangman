@@ -1,8 +1,18 @@
-{% extends "layout.html" %}
-{% block nav %}
-<li><a href="{{ url_for('play') }}">Play</a></li>
-<li><a href="{{ url_for('scores') }}">Scores</a></li>
-{% endblock %}
-{% block content %}
-<h1>Congratulations, {{ answer }} is the correct answer!</h1>
+{% extends "layout_inside.html" %}
+{% block page %}
+<h1>Awesome work!</h1>
+<br>
+<div class="col-sm-5"</div>
+	<div class="panel panel-success">
+    	<div class="panel-heading">Answer</div>
+    	<div class="panel-body">{{ answer }}</div>
+	</div>
+</div>
+
+<div class="col-sm-5"</div>
+	<div class="panel panel-danger">
+    	<div class="panel-heading">Your Correct Guesses</div>
+    	<div class="panel-body">{{ correct_guesses }}</div>
+  	</div>
+</div>
 {% endblock %}
