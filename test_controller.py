@@ -27,8 +27,8 @@ class Hangmanest(unittest.TestCase):
         model.db.drop_all()
 
     def test_username_exists(self):
-        self.assertEqual(validate_signup('lee_test', '123_test'), 'Username already exists. Please try again.')
-        self.assertIsNone(validate_signup('test', '123_test'))
+        self.assertEqual(validate_signup('lee_test', '123_test', '123_test'), 'Username already exists. Please try again.')
+        self.assertIsNone(validate_signup('test', '123_test', '123_test'))
 
     def test_username_not_found(self):
         self.assertEqual(validate_login('lee', '123_test'), ("Username not found. Please create account.", 'signup'))
@@ -46,30 +46,46 @@ class Hangmanest(unittest.TestCase):
     def test_guess_alpha(self):
         user=get_user('lee_test')
         guesses=create_game(user.id)[1]
-        self.assertEqual(validate_guess('1', guesses), 'Please guess a letter, not punction or numbers.')
+        self.assertEqual(validate_guess('1', guesses), 'Please guess a letter, not punctuation or numbers.')
 
-    def test_remaining_guess_decrement(self):
+    def test_remaining_guess_decrement_when_incorrect(self):
         user=get_user('lee_test')
         guesses=create_game(user.id)[1]
         guess=guesses.answer[0]
         update_guesses(guess, guesses)
-        self.assertEqual(guesses.remaining_guesses, len(guesses.answer)-1)
+        self.assertEqual(guesses.remaining_guesses, len(guesses.answer))
 
         user=get_user('lee_test')
         guesses=create_game(user.id)[1]
         for letter in alphabet:
             if not letter in guesses.answer:
-                guess=letter 
+                guess=letter
                 break
         update_guesses(guess, guesses)
         self.assertEqual(guesses.remaining_guesses, len(guesses.answer)-1)
+
+    def test_remaining_guess_same_when_correct(self):
+        user=get_user('lee_test')
+        guesses=create_game(user.id)[1]
+        guess=guesses.answer[0]
+        update_guesses(guess, guesses)
+        self.assertEqual(guesses.remaining_guesses, len(guesses.answer))
+
+        user=get_user('lee_test')
+        guesses=create_game(user.id)[1]
+        for letter in alphabet:
+            if letter in guesses.answer:
+                guess=letter
+                break
+        update_guesses(guess, guesses)
+        self.assertEqual(guesses.remaining_guesses, len(guesses.answer))
 
     def test_guess_not_in_correct(self):
         user=get_user('lee_test')
         guesses=create_game(user.id)[1]
         guess=guesses.answer[0]
         update_guesses(guess, guesses)
-        self.assertEqual(validate_guess(guess, guesses), 
+        self.assertEqual(validate_guess(guess, guesses),
             '"{}" already guessed. Please guess a new letter.'.format(guess))
 
     def test_guess_not_in_incorrect(self):
@@ -77,11 +93,11 @@ class Hangmanest(unittest.TestCase):
         guesses=create_game(user.id)[1]
         for letter in alphabet:
             if not letter in guesses.answer:
-                guess=letter 
+                guess=letter
                 break
 
         update_guesses(guess, guesses)
-        self.assertEqual(validate_guess(guess, guesses), 
+        self.assertEqual(validate_guess(guess, guesses),
             '"{}" already guessed. Please guess a new letter.'.format(guess))
 
     def test_correct_guess_replace(self):
@@ -96,7 +112,7 @@ class Hangmanest(unittest.TestCase):
         guesses=create_game(user.id)[1]
         for letter in alphabet:
             if not letter in guesses.answer:
-                guess=letter 
+                guess=letter
                 break
         update_guesses(guess, guesses)
         self.assertFalse(any(char.isalpha() for char in guesses.correct_guesses))
@@ -106,13 +122,13 @@ class Hangmanest(unittest.TestCase):
         guesses=create_game(user.id)[1]
         for letter in guesses.answer:
             update_guesses(letter, guesses)
-        self.assertTrue(check_game(guesses)) 
+        self.assertTrue(check_game(guesses))
 
         user=get_user('lee_test')
         guesses=create_game(user.id)[1]
         letter=guesses.answer[0]
         update_guesses(letter, guesses)
-        self.assertFalse(check_game(guesses)) 
+        self.assertFalse(check_game(guesses))
 
     def test_game_check_loss(self):
         user=get_user('lee_test')
@@ -120,12 +136,14 @@ class Hangmanest(unittest.TestCase):
         alphabet_i = 0
         answer_i = 0
         while len(guesses.answer) > answer_i:
-            if guesses.answer[answer_i] != alphabet[alphabet_i]:
+            if alphabet[alphabet_i] not in guesses.answer:
                 update_guesses(alphabet[alphabet_i], guesses)
                 answer_i += 1
                 alphabet_i += 1
             else:
                 alphabet_i += 1
+        update_game(guesses)
+
         self.assertTrue(check_game(guesses))
 
     def test_update_game_win(self):
@@ -146,9 +164,10 @@ class Hangmanest(unittest.TestCase):
         alphabet_i = 0
         answer_i = 0
         while len(guesses.answer) > answer_i:
-            if guesses.answer[answer_i] != alphabet[alphabet_i]:
+            if alphabet[alphabet_i] not in guesses.answer:
                 update_guesses(alphabet[alphabet_i], guesses)
                 answer_i += 1
+                alphabet_i += 1
             else:
                 alphabet_i += 1
         update_game(guesses)

@@ -1,6 +1,6 @@
 """
 User, game and guess IDs stored in HTTP session cookie. Game-state persists on page
-re-load but not on logout. 
+re-load but not on logout.
 """
 
 from functools import wraps
@@ -30,9 +30,9 @@ def signup():
 	if request.method == 'GET':
 		return render_template('signup.html')
 
-	username, password = request.form.get('username'), request.form.get('password')
-	if validate_signup(username, password):
-		message= validate_signup(username, password)
+	username, password, confirm_password = request.form.get('username'), request.form.get('password'), request.form.get('confirm_password')
+	if validate_signup(username, password, confirm_password):
+		message= validate_signup(username, password, confirm_password)
 		flash(message)
 		return redirect(url_for('signup'))
 	create_user(username, password)

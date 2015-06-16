@@ -11,22 +11,23 @@
     th { font-size: large }
     tr { font-size: large }
     .alert { width: 30%; }
+    .well { width: 30%; }
   </style>
 </head>
 <body>
   <div class="container-fluid">
 
-    <div class="jumbotron">
-    <h1>Hangman</h1>      
+    <div class="jumbotron" style="background:hsla(49, 100%, 84%, 1)">
+    <h1>Hangman</h1>
     </div>
 
     <div class="content">
 
       <div class="col-sm-2"</div>
         <ul class="nav nav-pills nav-stacked">
-          <li><a href="{{ url_for('play')}}">Play</a></li>
-          <li><a href="{{ url_for('scores')}}">Scores</a></li>
-          <li><a href="{{ url_for('logout')}}">Logout</a></li>
+          <li><a href="{{ url_for('play')}}"><span class="glyphicon glyphicon-play-circle"></span> Play</a></li>
+          <li><a href="{{ url_for('scores')}}"><span class="glyphicon glyphicon-stats"></span> Scores</a></li>
+          <li><a href="{{ url_for('logout')}}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
         </ul>
       </div>
 
@@ -37,7 +38,7 @@
 
       <br>
       <br>
-      <br>    
+      <br>
 
   </div>
 </body>

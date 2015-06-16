@@ -50,10 +50,10 @@ def update_game(guesses):
 		return 'loss'
 
 def update_guesses(guess, guesses):
-	guesses.remaining_guesses -= 1
 	if guess in guesses.answer:
 		guesses.insert_correct_guess(guess)
 	else:
+		guesses.remaining_guesses -= 1
 		guesses.incorrect_guesses += guess
 	db.session.commit()
 
@@ -65,7 +65,7 @@ def validate_guess(guess, guesses):
 	if len(guess) > 1:
 		return 'Please guess a single letter.'
 	elif not guess.isalpha():
-		return 'Please guess a letter, not punction or numbers.'
+		return 'Please guess a letter, not punctuation or numbers.'
 	elif guess in guesses.incorrect_guesses or guess in guesses.correct_guesses:
 		return '"{}" already guessed. Please guess a new letter.'.format(guess)
 
@@ -75,6 +75,8 @@ def validate_login(username, password):
 	elif get_user(username).password!=password:
 		return "Password invalid. Please try again.", 'login'
 
-def validate_signup(username, password):
+def validate_signup(username, password, confirm_password):
 	if get_user(username):
 		return "Username already exists. Please try again."
+	elif password != confirm_password:
+		return "Passwords do not match"

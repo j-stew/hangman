@@ -20,7 +20,7 @@ class HangmanAccessTest(unittest.TestCase):
         model.Word.add_words()
 
         self.client = hangman_app.test_client()
-        data = {'username':'lily_test', 'password':'123_test'}
+        data = {'username':'lily_test', 'password':'123_test', 'confirm_password':'123_test'}
         self.client.post('/signup', data=data, follow_redirects=True)
 
     @classmethod
@@ -53,7 +53,7 @@ class HangmanAccessTest(unittest.TestCase):
 
     def test_login_unknown_user_signup_redirect(self):
         with hangman_app.test_client() as client:
-            data = {'username':'invalid', 'password':'invalid'}
+            data = {'username':'invalid', 'password':'invalid', 'confirm_password':'invalid'}
             resp = client.post('/login', data=data, follow_redirects=True)
             self.assertEqual(flask.request.path, '/signup')
 
@@ -66,14 +66,19 @@ class HangmanAccessTest(unittest.TestCase):
         resp = self.client.post('/login', data=data, follow_redirects=True)
         self.assertIn('Username not found', resp.data)
 
+    def test_signup_confirm_password_flash(self):
+        data = {'username':'confirm_test', 'password':'123_test', 'confirm_password':'test'}
+        resp = self.client.post('/signup', data=data, follow_redirects=True)
+        self.assertIn('Passwords do not match', resp.data)
+
     def test_signup_dupe_username(self):
-        data = {'username':'lily_test', 'password':'123_test'}
+        data = {'username':'lily_test', 'password':'123_test', 'confirm_password':'123_test'}
         resp = self.client.post('/signup', data=data, follow_redirects=True)
         self.assertIn('Username already exists', resp.data)
 
     def test_signup_play_redirect(self):
         with hangman_app.test_client() as client:
-            data = {'username':'lee_test', 'password':'123_test'}
+            data = {'username':'lee_test', 'password':'123_test', 'confirm_password':'123_test'}
             resp = client.post('/signup', data=data, follow_redirects=True)
             path=flask.request.path
             self.assertEqual(path, '/play')
@@ -107,7 +112,7 @@ class HangmanPlayTest(unittest.TestCase):
         model.Word.add_words()
 
         self.client = hangman_app.test_client()
-        data = {'username':'lily_test', 'password':'123_test'}
+        data = {'username':'lily_test', 'password':'123_test', 'confirm_password':'123_test'}
         self.client.post('/signup', data=data, follow_redirects=True)
 
     @classmethod
@@ -148,7 +153,7 @@ class HangmanPlayTest(unittest.TestCase):
     def test_play_guess_alpha_flash(self):
         data = {'guess':'1'}
         resp = self.client.post('/play', data=data, follow_redirects=True)
-        self.assertIn('not punction or numbers', resp.data)
+        self.assertIn('not punctuation or numbers', resp.data)
 
     def test_play_guess_dupe_flash(self):
         data = {'guess':'a'}
@@ -158,7 +163,7 @@ class HangmanPlayTest(unittest.TestCase):
 
     def test_win_redirect(self):
         with hangman_app.test_client() as client:
-            data = {'username':'lauren_test', 'password':'123_test'}
+            data = {'username':'lauren_test', 'password':'123_test', 'confirm_password':'123_test'}
             client.post('/signup', data=data, follow_redirects=True)
             answer=get_guesses(flask.session['guesses_id']).answer
             for letter in answer:
@@ -168,15 +173,16 @@ class HangmanPlayTest(unittest.TestCase):
 
     def test_loss_redirect(self):
         with hangman_app.test_client() as client:
-            data = {'username':'ryan_test', 'password':'123_test'}
+            data = {'username':'ryan_test', 'password':'123_test', 'confirm_password':'123_test'}
             client.post('/signup', data=data, follow_redirects=True)
-            answer=get_guesses(flask.session['guesses_id']).answer
+            guesses=get_guesses(flask.session['guesses_id'])
             alphabet_i = 0
             answer_i = 0
-            while len(answer) > answer_i:
-                if answer[answer_i] != alphabet[alphabet_i]:
-                    client.post('/play', data={'guess':alphabet[answer_i]}, follow_redirects=True)
+            while len(guesses.answer) > answer_i:
+                if alphabet[alphabet_i] not in guesses.answer:
+                    client.post('/play', data={'guess':alphabet[alphabet_i]}, follow_redirects=True)
                     answer_i += 1
+                    alphabet_i += 1
                 else:
                     alphabet_i += 1
             path=flask.request.path
