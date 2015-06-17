@@ -37,16 +37,22 @@ class Game(db.Model):
 	def __init__(self, status, user):
 		self.created_date=datetime.utcnow()
 		self.status=status
-		self.answer=Word.random_word()
+		self.answer=Word.random_word(user)
 		self.user_id=user.id
 
 	def __repr__(self):
 		return "created_date={}, status={}, answer={}.".format(self.created_date, self.status, self.answer)
 
+	def change_answer(self, answer):
+		self.answer=answer
+		self.guesses.correct_guesses=self.guesses.get_blanks()
+		self.guesses.incorrect_guesses=''
+		self.guesses.remaining_guesses=self.guesses.possible_guesses()
+
 class Guesses(db.Model):
 	"""1-to-1 relationship with Game, isolated due to guess-specific computation.
 	Object name is plural to differentiate from singular guesses made by user. Guesses
-	contains the current game progress given user guesses. 
+	contains the current game progress given user guesses.
 	"""
 	id = db.Column(db.Integer, primary_key=True)
 	answer = db.Column(db.String(200), nullable=False)
@@ -91,9 +97,13 @@ class Word(db.Model):
 		return "word={}".format(self.word)
 
 	@classmethod
-	def random_word(cls):
-		num = randint(1, cls.query.count()+1)
-		return cls.query.filter_by(id=num).first().word
+	def random_word(cls, user):
+		past_words=[game.answer for game in user.games.all()]
+		word=None
+		while word==None or word in past_words:
+			num = randint(1, cls.query.count()+1)
+			word=cls.query.filter_by(id=num).first().word
+		return word
 
 	@staticmethod
 	def add_words():

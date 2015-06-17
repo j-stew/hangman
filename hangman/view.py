@@ -69,6 +69,9 @@ def play():
 	if request.method=='GET':
 		game = get_game(session['game_id'])
 		guesses = get_guesses(session['guesses_id'])
+
+		if request.args.get('answer'):
+			game.change_answer(request.args.get('answer'))
 		return render_template('play.html', guesses=guesses)
 
 	guess = request.form.get('guess').lower()
