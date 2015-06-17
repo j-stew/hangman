@@ -7,7 +7,7 @@ import flask
 os.environ['DATABASE_URL'] = 'postgres://localhost/test_hangman'
 
 from hangman import model, hangman_app
-from hangman.controller import create_user, create_game, get_guesses
+from hangman.controller import create_user, create_game, get_guesses, update_answer
 
 hangman_app.config['TESTING']=True
 
@@ -187,6 +187,21 @@ class HangmanPlayTest(unittest.TestCase):
                     alphabet_i += 1
             path=flask.request.path
             self.assertEqual(path, '/loss')
+
+    def test_change_answer(self):
+        with hangman_app.test_client() as client:
+            data = {'username':'lily_test', 'password':'123_test'}
+            client.post('/login', data=data, follow_redirects=True)
+            client.post('/play', data={'guess':'a'}, follow_redirects=True)
+            client.get('/play', query_string={'answer':'hello'}, follow_redirects=True)
+            guesses=get_guesses(flask.session['guesses_id'])
+            game=guesses.game
+
+            self.assertEqual(game.answer, 'hello')
+            self.assertEqual(guesses.answer, 'hello')
+            self.assertEqual(guesses.correct_guesses, '___ ___ ___ ___ ___')
+            self.assertEqual(guesses.incorrect_guesses, '')
+            self.assertEqual(guesses.remaining_guesses, 5)
 
 if __name__ == '__main__':
     unittest.main()

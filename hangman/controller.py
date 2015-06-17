@@ -57,6 +57,11 @@ def update_guesses(guess, guesses):
 		guesses.incorrect_guesses += guess
 	db.session.commit()
 
+def update_answer(answer, game):
+	game.answer=answer
+	game.guesses.reset(answer)
+	db.session.commit()
+
 def check_game(guesses):
 	"""Utility for update_game that determines if game status should be updated"""
 	return "___" not in guesses.correct_guesses or guesses.remaining_guesses <= 0

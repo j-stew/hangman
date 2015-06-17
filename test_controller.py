@@ -7,7 +7,7 @@ os.environ['DATABASE_URL'] = 'postgres://localhost/test_hangman'
 
 from hangman import  model, hangman_app
 from hangman.controller import create_game, create_user, validate_login, validate_signup, \
-validate_guess, update_guesses, update_game, check_game, get_user
+validate_guess, update_guesses, update_game, check_game, get_user, update_answer
 
 hangman_app.config['TESTING']=True
 
@@ -174,6 +174,18 @@ class Hangmanest(unittest.TestCase):
 
         self.assertEqual(guesses.game.status, 'loss')
         self.assertGreater(user.loses, user_initial_loses)
+
+    def test_update_answer(self):
+        user=get_user('lee_test')
+        game, guesses=create_game(user.id)
+        update_guesses("a", guesses)
+        update_answer("h", game)
+
+        self.assertEqual(game.answer, "h")
+        self.assertEqual(guesses.answer, "h")
+        self.assertEqual(guesses.correct_guesses, '___')
+        self.assertEqual(guesses.incorrect_guesses, '')
+        self.assertEqual(guesses.remaining_guesses, 1)
 
 if __name__ == '__main__':
     unittest.main()

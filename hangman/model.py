@@ -43,12 +43,6 @@ class Game(db.Model):
 	def __repr__(self):
 		return "created_date={}, status={}, answer={}.".format(self.created_date, self.status, self.answer)
 
-	def change_answer(self, answer):
-		self.answer=answer
-		self.guesses.correct_guesses=self.guesses.get_blanks()
-		self.guesses.incorrect_guesses=''
-		self.guesses.remaining_guesses=self.guesses.possible_guesses()
-
 class Guesses(db.Model):
 	"""1-to-1 relationship with Game, isolated due to guess-specific computation.
 	Object name is plural to differentiate from singular guesses made by user. Guesses
@@ -84,6 +78,12 @@ class Guesses(db.Model):
 		for position in positions:
 			inserted[position] = guess
 		self.correct_guesses = " ".join(inserted)
+
+	def reset(self, answer):
+		self.answer=answer
+		self.correct_guesses=self.get_blanks()
+		self.incorrect_guesses=''
+		self.remaining_guesses=self.possible_guesses()
 
 class Word(db.Model):
 	"""Word bank of possible words for game, pulled from words.txt"""

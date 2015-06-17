@@ -10,7 +10,7 @@ from flask import render_template, redirect, request, flash, session, url_for
 from hangman import hangman_app
 from model import User
 from controller import validate_signup, validate_login, validate_guess, get_user, \
-get_guesses, get_game, create_game, create_user, update_guesses, check_game, update_game
+get_guesses, get_game, create_game, create_user, update_guesses, check_game, update_game, update_answer
 
 def auth(f):
 	@wraps(f)
@@ -71,7 +71,7 @@ def play():
 		guesses = get_guesses(session['guesses_id'])
 
 		if request.args.get('answer'):
-			game.change_answer(request.args.get('answer'))
+			update_answer(request.args.get('answer'), game)
 		return render_template('play.html', guesses=guesses)
 
 	guess = request.form.get('guess').lower()
