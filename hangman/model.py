@@ -88,7 +88,7 @@ class Guesses(db.Model):
 class Word(db.Model):
 	"""Word bank of possible words for game, pulled from words.txt"""
 	id = db.Column(db.Integer, primary_key=True)
-	word = db.Column(db.String(200), nullable=False)
+	word = db.Column(db.String(200), nullable=False, unique=True)
 
 	def __init__(self, word):
 		self.word=word
@@ -113,4 +113,4 @@ class Word(db.Model):
 		db.session.commit()
 
 db.create_all()
-Word.add_words()
+# Word.add_words()

@@ -5,25 +5,23 @@
 {% endblock %}
 
 {% block page %}
-<div class="col-sm-5"</div>
-	<div class="panel panel-success">
-    <div class="panel-heading">Progress</div>
-    <div class="panel-body">{{ guesses.correct_guesses }}</div>
-	</div>
-
-	<div class="panel panel-danger">
-    <div class="panel-heading">Incorrect guesses</div>
-    <div class="panel-body">{{ guesses.incorrect_guesses }}</div>
-  </div>
-
-  <div class="well">Remaining guesses: {{ guesses.remaining_guesses }}</div>
-
-  <form method="post" action="{{ url_for('play') }}">
-    <div class="form-group">
-      <label for="guess">Guess:</label>
-      <input type="text" class="form-control" name="guess" placeholder="Enter guess" autocomplete=off required>
-    </div>
-    <button type="submit" class="btn btn-default">Submit</button>
-  </form>
+<div class="panel panel-success">
+  <div class="panel-heading">Progress</div>
+  <div class="panel-body">{{ guesses.correct_guesses }}</div>
 </div>
+
+<div class="panel panel-danger">
+  <div class="panel-heading">Incorrect guesses</div>
+  <div class="panel-body">{{ guesses.incorrect_guesses }}</div>
+</div>
+
+<div class="well">Remaining guesses: {{ guesses.remaining_guesses }}</div>
+
+<form method="post" action="{{ url_for('play') }}">
+  <div class="form-group">
+    <label for="guess">Guess:</label>
+    <input type="text" class="form-control" name="guess" placeholder="Enter guess" autocomplete=off required>
+  </div>
+  <button type="submit" class="btn btn-default">Submit</button>
+</form>
 {% endblock %}

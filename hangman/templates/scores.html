@@ -1,27 +1,26 @@
 {% extends "layout.html" %}
 
 {% block title %}
-<div class="container">
-  <h1>Top Scores</h1>
+<h1>Top Scores</h1>
 {% endblock %}
 
 {% block page %}
-  <table class="table table-hover">
-    <thead>
-      <tr>
-        <th>Username</th>
-        <th>Wins</th>
-        <th>Loses</th>
-      </tr>
-    </thead>
-    {% for score in top_scores %}
-    <tbody>
-      <tr>
-        <td class="text-capitalize">{{ score.username }}</td>
-        <td>{{ score.wins }}</td>
-        <td>{{ score.loses }}</td>
-      </tr>
-    {% endfor %}
-  </table>
-</div>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Username</th>
+      <th>Wins</th>
+      <th>Loses</th>
+    </tr>
+  </thead>
+  {% for score in top_scores %}
+  <tbody>
+    <tr>
+      <td class="text-capitalize">{{ score.username }}</td>
+      <td>{{ score.wins }}</td>
+      <td>{{ score.loses }}</td>
+    </tr>
+  </tbody>
+  {% endfor %}
+</table>
 {% endblock %}
