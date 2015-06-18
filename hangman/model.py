@@ -1,12 +1,12 @@
 from random import randint
 from datetime import datetime
+from os import stat
 
 from flask.ext.sqlalchemy import SQLAlchemy
 from hangman import hangman_app
 from flask import session
 
 db = SQLAlchemy(hangman_app)
-db.create_all()
 
 class User(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
@@ -37,11 +37,19 @@ class Game(db.Model):
 	def __init__(self, status, user):
 		self.created_date=datetime.utcnow()
 		self.status=status
-		self.answer=Word.random_word(user)
+		self.answer=self.select_word()
 		self.user_id=user.id
 
 	def __repr__(self):
 		return "created_date={}, status={}, answer={}.".format(self.created_date, self.status, self.answer)
+
+	def select_word(self):
+		word=None
+		while word==None:
+			word=Word.random_word()
+			if word.repeat_word(self.user):
+				word=None
+		return word.word
 
 class Guesses(db.Model):
 	"""1-to-1 relationship with Game, isolated due to guess-specific computation.
@@ -88,29 +96,42 @@ class Guesses(db.Model):
 class Word(db.Model):
 	"""Word bank of possible words for game, pulled from words.txt"""
 	id = db.Column(db.Integer, primary_key=True)
-	word = db.Column(db.String(200), nullable=False, unique=True)
+	added_date = db.Column(db.DateTime)
+	word = db.Column(db.String(200), nullable=False, unique=True, index=True)
 
-	def __init__(self, word):
+	def __init__(self, added_date, word):
+		self.added_date=added_date
 		self.word=word
 
 	def __repr__(self):
-		return "word={}".format(self.word)
+		return "added_date={}, word={}".format(self.added_date, self.word)
 
 	@classmethod
-	def random_word(cls, user):
-		past_words=[game.answer for game in user.games.all()]
-		word=None
-		while word==None or word in past_words:
-			num = randint(1, cls.query.count()+1)
-			word=cls.query.filter_by(id=num).first().word
-		return word
+	def add_words(cls):
+		added_date=datetime.utcfromtimestamp(stat('hangman/words.txt').st_mtime)
+		if not cls.query.first():
+			words = set(open("hangman/words.txt", "r").read().split("\n"))
+			added_date=datetime.utcfromtimestamp(stat('hangman/words.txt').st_mtime)
+			for word in words:
+				db.session.add(Word(added_date, word))
+			db.session.commit()
+		elif added_date > cls.query.order_by(cls.added_date.desc()).first().added_date:
+			words = set(open("hangman/words.txt", "r").read().split("\n"))
+			for word in words:
+				if not cls.query.filter_by(word=word).first():
+					db.session.add(Word(added_date,word))
+			db.session.commit()
 
-	@staticmethod
-	def add_words():
-		words = open("hangman/words.txt", "r").read().split("\n")
-		for word in words:
-			db.session.add(Word(word))
-		db.session.commit()
+	@classmethod
+	def random_word(cls):
+		num = randint(1, cls.query.count()+1)
+		return cls.query.filter_by(id=num).first()
 
+	def repeat_word(self, user):
+		past_words=[game.answer for game in Game.query.filter_by(user=user).all()]
+		return self.word in past_words
+
+db.session.remove()
+db.drop_all()
 db.create_all()
-# Word.add_words()
+Word.add_words()

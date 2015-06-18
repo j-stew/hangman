@@ -146,6 +146,7 @@ necklace
 needle
 onion
 paintbrush
+pancake
 pants
 parachute
 passport
