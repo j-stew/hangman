@@ -62,9 +62,13 @@ def logout():
 def play():
 	if not get_game(session.get('game_id')):
 		game, guesses=create_game(session['user_id'])
-		session['game_id']=game.id
-		session['guesses_id']=guesses.id
-		return render_template('play.html', guesses=guesses)
+		if game=="You've used all the words in the word bank!":
+			flash(game)
+			return redirect(url_for('play'))
+		else:
+			session['game_id']=game.id
+			session['guesses_id']=guesses.id
+			return render_template('play.html', guesses=guesses)
 
 	if request.method=='GET':
 		game = get_game(session['game_id'])

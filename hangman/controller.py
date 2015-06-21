@@ -10,7 +10,10 @@ from model import User, Game, Guesses, Word, db
 
 def create_game(user_id):
 	"""Returns game and guesses objects which have a 1-to-1 relationship"""
-	game = Game(status='in-progress', user=get_user(user_id))
+	user=get_user(user_id)
+	game = Game(status='in-progress', user=user)
+	if game.answer=="You've used all the words in the word bank!":
+		return "You've used all the words in the word bank!", None
 	db.session.add(game)
 	db.session.commit()
 	guesses = Guesses(game)
