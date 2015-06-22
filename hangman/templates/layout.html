@@ -6,35 +6,43 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 </head>
 <body>
 
-  <div id="wrapper">
-    <div class="container-fluid">
+  <div class="container-fluid">
+    <div class="row">
       <div class="jumbotron" style="background: hsla(165, 94%, 44%, 0.26)">
         <h1>Hangman</h1>
+        <p>Check it out on <a href="http://www.github.com/j-stew/hangman"</a>Github</p>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="col-md-2">
+        <ul class="nav nav-pills nav-stacked">
+          {% if request.path in '/login/signup' %}
+            <li><a href="{{ url_for('login')}}"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+            <li><a href="{{ url_for('signup')}}"><span class="glyphicon glyphicon-user"></span> Sign-up</a></li>
+          {% else %}
+            <li><a href="{{ url_for('play')}}"><span class="glyphicon glyphicon-play-circle"></span> Play</a></li>
+            <li><a href="{{ url_for('scores')}}"><span class="glyphicon glyphicon-stats"></span> Scores</a></li>
+            <li><a href="{{ url_for('logout')}}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+          {% endif %}
+        </ul>
       </div>
 
-      <div class="content">
-        <div class="col-sm-2">
-          <ul class="nav nav-pills nav-stacked">
-            {% if request.path in '/login/signup' %}
-              <li><a href="{{ url_for('login')}}"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
-              <li><a href="{{ url_for('signup')}}"><span class="glyphicon glyphicon-user"></span> Sign-up</a></li>
-            {% else %}
-              <li><a href="{{ url_for('play')}}"><span class="glyphicon glyphicon-play-circle"></span> Play</a></li>
-              <li><a href="{{ url_for('scores')}}"><span class="glyphicon glyphicon-stats"></span> Scores</a></li>
-              <li><a href="{{ url_for('logout')}}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
-            {% endif %}
-          </ul>
-        </div>
-
-        <div class="col-sm-5">
+      <div class="col-md-4 col-md-offset-2">
+        <div class="row">
           {% block title %}
           {% endblock %}
-          
+        </div>
+
+        <div class="row">
+          {% block page %}
+          {% endblock %}
+        </div>
+
+        <div class="row" style="margin-top: 3%">
           {% with messages = get_flashed_messages() %}
             {% if messages %}
               {% for message in messages %}
@@ -44,20 +52,10 @@
               {% endfor %}
             {% endif %}
           {% endwith %}
-
-          {% block page %}
-          {% endblock %}
         </div>
       </div>
-    </div>
-  </div>
 
-  <div id="footer">
-    <div class="container-fluid">
-      <span="text-muted credit">View source code on Jess Stewart's <a href="http://github.com/j-stew/hangman">Github</a></span>
     </div>
-  </div>
-
   </div>
 </body>
 </html>
