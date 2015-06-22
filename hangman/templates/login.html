@@ -1,19 +1,20 @@
 {% extends "layout.html" %}
+
 {% block title %}
-<h2>Login to your account</h2>
+Login to your account
 {% endblock %}
 
 {% block page %}
 <form method="post" action="{{ url_for('login') }}">
 	<div class="form-group">
-		<label for="username">Username:</label>
-		<input type="text" class="form-control" name="username" placeholder="Enter username" required>
+		<label for="username" style="font-size: large">Username:</label>
+		<input type="text" class="form-control input-lg" name="username" placeholder="Enter username" required>
 	</div>
 
 	<div class="form-group">
-		<label for="password">Password:</label>
-		<input type="password" class="form-control" name="password" placeholder="Enter password" required>
+		<label for="password" style="font-size: large">Password:</label>
+		<input type="password" class="form-control input-lg" name="password" placeholder="Enter password" required>
 	</div>
-	<button type="submit" class="btn btn-default">Submit</button>
+	<button type="submit" class="btn btn-info btn-lg">Submit</button>
 </form>
 {% endblock %}
