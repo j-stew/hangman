@@ -21,7 +21,6 @@ bathtub
 bed
 bee
 bible
-bible
 bird
 bomb
 book
@@ -35,7 +34,6 @@ bridge
 butterfly
 button
 cappuccino
-car
 car
 race
 carpet
@@ -111,7 +109,6 @@ highway
 horoscope
 horse
 hose
-ice
 ice
 cream
 insect

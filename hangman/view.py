@@ -21,6 +21,14 @@ def auth(f):
 		return f(*args, **kwargs)
 	return wrapper
 
+def word_limit(f):
+	@wraps(f)
+	def wrapper(*args, **kwargs):
+		if get_user(session.get('user_id'))=="Word_limit":
+			return redirect(url_for('word_limit'))
+		return f(*args, **kwargs)
+	return wrapper
+
 @hangman_app.route("/")
 def index():
 	return redirect(url_for('login'))
@@ -59,12 +67,14 @@ def logout():
 
 @hangman_app.route("/play", methods=["GET", "POST"])
 @auth
+@word_limit
 def play():
 	if not get_game(session.get('game_id')):
 		game, guesses=create_game(session['user_id'])
-		if game=="You've used all the words in the word bank!":
-			flash(game)
-			return redirect(url_for('play'))
+		if game=="Word limit":
+			session['game_id']=game
+			session['guesses_id']=guesses
+			return redirect(url_for('word_limit'))
 		else:
 			session['game_id']=game.id
 			session['guesses_id']=guesses.id
@@ -118,3 +128,8 @@ def scores():
 	scores = User.query.order_by(User.wins.desc()).all()
 	top_scores = scores[0:5]
 	return render_template("scores.html", top_scores=top_scores)
+
+@hangman_app.route("/word_limit")
+@auth
+def word_limit():
+	return render_template("word_limit.html")

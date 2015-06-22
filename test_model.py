@@ -1,27 +1,27 @@
 import unittest
 import os
 from datetime import datetime
+from string import rstrip
 
 os.environ['DATABASE_URL'] = 'postgres://localhost/test_hangman'
 
-from hangman import controller, model, hangman_app
+from hangman.model import db, Word
+from hangman import hangman_app, model, controller
 hangman_app.config['TESTING']=True
 
 class HangmanModelTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        model.db.session.remove()
-        model.db.drop_all()
-        model.db.create_all()
-        model.Word.add_words()
+        db.create_all()
+        Word.add_words()
 
     @classmethod
     def tearDownClass(cls):
-        model.db.session.remove()
-        model.db.drop_all()
+        db.session.remove()
+        db.drop_all()
 
     def test_create_word(self):
-        self.assertTrue(model.Word.query.count() > 0)
+        self.assertTrue(Word.query.count() > 0)
 
     def test_create_get_user(self):
         new_user = controller.create_user('jess_test', '123_test')
@@ -54,6 +54,32 @@ class HangmanModelTest(unittest.TestCase):
         self.assertFalse(guesses.incorrect_guesses)
         self.assertTrue(guesses.remaining_guesses>0)
         self.assertTrue(guesses.game_id)
+
+class HangmanWordsFile(unittest.TestCase):
+    @classmethod
+    def setUpClass(self):
+        db.create_all()
+        Word.add_words()
+
+    @classmethod
+    def tearDownClass(self):
+        db.session.remove()
+        db.drop_all()
+
+        with open("hangman/words.txt", "r+") as f:
+            words = f.read()
+            words = rstrip(words, '\ntest_add_words')
+            
+        with open("hangman/words.txt", "w") as f:
+            f.write(words)
+
+    def test_edit_adds_words(self):
+        with open("hangman/words.txt", "a") as f:
+            f.write("\ntest_add_words")
+
+        Word.add_words()
+        last_added_word = Word.query.order_by(Word.added_date.desc()).first().word
+        self.assertEqual(last_added_word, "test_add_words")
 
 if __name__ == '__main__':
     unittest.main()

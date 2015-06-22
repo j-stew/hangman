@@ -81,10 +81,12 @@ class Game(db.Model):
 		return "created_date={}, status={}, answer={}.".format(self.created_date, self.status, self.answer)
 
 	def select_word(self, user):
-		past_words=[game.answer for game in Game.query.filter_by(user=user).all()]
+		past_words=sorted([game.answer for game in Game.query.filter_by(user=user).all()])
+		total_words=sorted([word.word for word in Word.query.all()])
+		if past_words==total_words:
+			return "Word limit"
+
 		word=None
-		total_words=Word.query.count()
-		i=0
 		while word==None:
 			try:
 				word=Word.random_word().word
@@ -92,9 +94,6 @@ class Game(db.Model):
 				word=Word.random_word().word
 			if word in past_words:
 				word=None
-				i+=1
-			if i >= total_words:
-				return "You've used all the words in the word bank!"
 		return word
 
 class Guesses(db.Model):
