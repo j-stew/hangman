@@ -6,16 +6,16 @@ Guess a letter!
 
 {% block page %}
 <div class="panel panel-success">
-  <div class="panel-heading">Progress</div>
-  <div class="panel-body">{{ guesses.correct_guesses }}</div>
+  <div class="panel-heading" style="font-size: large">Progress</div>
+  <div class="panel-body text-uppercase" style="font-size: large">{{ guesses.correct_guesses }}</div>
 </div>
 
 <div class="panel panel-warning">
-  <div class="panel-heading">Incorrect guesses</div>
-  <div class="panel-body">{{ guesses.incorrect_guesses }}</div>
+  <div class="panel-heading" style="font-size: large">Incorrect guesses</div>
+  <div class="panel-body text-uppercase" style="font-size: large">{{ guesses.incorrect_guesses }}</div>
 </div>
 
-<div class="well">Remaining guesses: {{ guesses.remaining_guesses }}</div>
+<div class="well" style="font-size: large">Remaining guesses: {{ guesses.remaining_guesses }}</div>
 
 <form method="post" action="{{ url_for('play') }}">
   <div class="form-group">

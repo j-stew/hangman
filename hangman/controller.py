@@ -57,7 +57,7 @@ def update_guesses(guess, guesses):
 		guesses.insert_correct_guess(guess)
 	else:
 		guesses.remaining_guesses -= 1
-		guesses.incorrect_guesses += guess
+		guesses.incorrect_guesses += guess + " "
 	db.session.commit()
 
 def update_answer(answer, game):
