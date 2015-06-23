@@ -61,6 +61,7 @@ def update_guesses(guess, guesses):
 	db.session.commit()
 
 def update_answer(answer, game):
+	"""Used by query string answer cheat."""
 	game.answer=answer
 	game.guesses.reset(answer)
 	db.session.commit()
