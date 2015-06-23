@@ -3,7 +3,7 @@ Function naming is indicative of behavior:
 	'create' creates and returns objects
 	'get' fetches objects
 	'update' changes objects
-	'validate' checks user input and returns messages for invalid input
+	'validate' checks user input and returns messages for flashes
 """
 
 from model import User, Game, Guesses, Word, db

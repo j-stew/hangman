@@ -41,6 +41,9 @@ class Word(db.Model):
 
 	@classmethod
 	def add_words(cls):
+		"""Adds content from words.txt to database to be used in games.
+		Also detects file changes and adds new words.
+		"""
 		added_date=datetime.utcfromtimestamp(stat('hangman/words.txt').st_mtime)
 		if not cls.query.first():
 			words = set(open("hangman/words.txt", "r").read().split("\n"))
@@ -81,6 +84,9 @@ class Game(db.Model):
 		return "created_date={}, status={}, answer={}.".format(self.created_date, self.status, self.answer)
 
 	def select_word(self, user):
+		"""Prevents user from getting words they've gotten previously and
+		returns alert to frontend when user has played all words.
+		"""
 		past_words=sorted([game.answer for game in Game.query.filter_by(user=user).all()])
 		total_words=sorted([word.word for word in Word.query.all()])
 		if past_words==total_words:
@@ -133,6 +139,7 @@ class Guesses(db.Model):
 		self.correct_guesses = " ".join(inserted)
 
 	def reset(self, answer):
+		"""Resets guesses when answer-cheat used."""
 		self.answer=answer
 		self.correct_guesses=self.get_blanks()
 		self.incorrect_guesses=''
