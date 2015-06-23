@@ -1,8 +1,4 @@
 #!bin/sh
-
-mkvirtualenv hangman_env
-workon hangman_env
-
 pip install -r requirements.txt
 
 export DATABASE_URL=postgres://localhost/hangman

@@ -10,3 +10,6 @@ hangman_app.config['HOST'] = os.environ['HOST']
 hangman_app.config['PORT'] = os.environ['PORT']
 
 from hangman import model, controller, view
+
+model.db.create_all()
+model.Word.add_words()

@@ -1,4 +1,5 @@
 ### Running Hangman locally
+Set-up should be 6 terminal commands (assuming OSX and Postgresql set-up)
 
 #### Clone the project
 ```
@@ -11,29 +12,15 @@ cd hangman
 virtualenv hangman_env
 source hangman_env/bin/activate
 ```
-Alternatively if you'd like to use virtualenvwrapper
+Alternatively, if you prefer virtualenvwrapper
 ```
 mkvirtualenv hangman_env
 workon hangman_env
 ```
 
-#### Install requirements
+#### Run setup script
 ```
-pip install -r requirements.txt
-```
-
-#### Set environment variables
-```
-export DATABASE_URL=postgres://localhost/hangman
-export DEBUG=True
-export HOST=127.0.0.1
-export PORT=5000
-```
-
-#### Create databases
-```
-psql -c 'CREATE DATABASE hangman'
-psql -c 'CREATE DATABASE test_hangman'
+bash setup.sh
 ```
 
 #### Run locally

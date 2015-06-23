@@ -137,8 +137,3 @@ class Guesses(db.Model):
 		self.correct_guesses=self.get_blanks()
 		self.incorrect_guesses=''
 		self.remaining_guesses=self.possible_guesses()
-
-# db.session.remove()
-# db.drop_all()
-db.create_all()
-Word.add_words()
