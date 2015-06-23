@@ -11,6 +11,11 @@ cd hangman
 virtualenv hangman_env
 source hangman_env/bin/activate
 ```
+Alternatively if you'd like to use virtualenvwrapper
+```
+mkvirtualenv hangman_env
+workon hangman_env
+```
 
 #### Install requirements
 ```
@@ -34,5 +39,5 @@ psql -c 'CREATE DATABASE test_hangman'
 #### Run locally
 ```
 python run.py
-open http://127.0.0.1:5000/login
 ```
+Navigate to http://127.0.0.1:5000/login
