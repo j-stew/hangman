@@ -17,9 +17,9 @@
       </div>
     </div>
 
-    <div class="content">
+    <div class="content" style="font-size: large">
       <div class="col-md-2">
-        <ul class="nav nav-pills nav-stacked" style="font-size: large">
+        <ul class="nav nav-pills nav-stacked">
           {% if request.path in '/login/signup' %}
             <li><a href="{{ url_for('login')}}"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
             <li><a href="{{ url_for('signup')}}"><span class="glyphicon glyphicon-user"></span> Sign-up</a></li>
