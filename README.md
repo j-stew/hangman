@@ -1,4 +1,4 @@
-### Running Hangman locally
+### Running [Hangman](http://mr-hangman.herokuapp.com/login) locally
 Set-up should be 6 terminal commands (assuming OSX and Postgresql set-up)
 
 #### Clone the project
