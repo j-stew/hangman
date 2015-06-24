@@ -1,7 +1,4 @@
 #!bin/sh
-git clone https://github.com/j-stew/hangman.git
-cd hangman
-
 mkvirtualenv hangman_env
 workon hangman_env
 
