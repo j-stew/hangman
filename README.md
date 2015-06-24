@@ -2,9 +2,9 @@
 Set-up should be 3 terminal commands
 
 Assumes:
-    1. Mac OS X
-    2. Postgresql set-up locally
-    3. pip and virtualenvwrapper installed
+  1. Mac OS X
+  2. Postgresql set-up locally
+  3. pip and virtualenvwrapper installed
 
 #### Clone the project
 ```
@@ -17,7 +17,7 @@ cd hangman
 source setup.sh
 ```
 
-##### After initial set-up, app run locally with:
+##### After initial set-up, run app locally with:
 ```
 python run.py
 ```
