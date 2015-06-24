@@ -11,13 +11,13 @@
 
   <div class="container-fluid">
     <div class="row">
-      <div class="jumbotron" style="background: hsla(165, 94%, 44%, 0.26)">
+      <div class="jumbotron">
         <h1>Hangman</h1>
-        <p>Check it out on <a href="http://www.github.com/j-stew/hangman"></a>Github</p>
+        <p>Check it out on <a href="http://www.github.com/j-stew/hangman">Github</a></p>
       </div>
     </div>
 
-    <div class="content" style="font-size: large">
+    <div class="content">
       <div class="col-md-2">
         <ul class="nav nav-pills nav-stacked">
           {% if request.path in '/login/signup' %}
@@ -44,7 +44,7 @@
           {% endblock %}
         </div>
 
-        <div class="row" style="margin-top: 3%">
+        <div class="row">
           {% with messages = get_flashed_messages() %}
             {% if messages %}
               {% for message in messages %}

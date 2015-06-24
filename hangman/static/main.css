@@ -1,0 +1,11 @@
+.jumbotron {
+    background: hsla(165, 94%, 44%, 0.26);
+}
+
+.content {
+    font-size: large;
+}
+
+.alert-danger {
+    margin-top: 3%;
+}
