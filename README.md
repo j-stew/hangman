@@ -20,7 +20,7 @@ workon hangman_env
 
 #### Run setup script
 ```
-bash setup.sh
+source setup.sh
 ```
 
 #### Run locally
