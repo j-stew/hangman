@@ -1,5 +1,10 @@
 ### Running [Hangman](http://mr-hangman.herokuapp.com/login) locally
-Set-up should be 6 terminal commands (assuming OSX and Postgresql set-up)
+Set-up should be 3 terminal commands
+
+Assumes:
+    1. Mac OS X
+    2. Postgresql set-up locally
+    3. pip and virtualenvwrapper installed
 
 #### Clone the project
 ```
@@ -7,23 +12,12 @@ git clone https://github.com/j-stew/hangman.git
 cd hangman
 ```
 
-#### Create a virtualenv
-```
-virtualenv hangman_env
-source hangman_env/bin/activate
-```
-Alternatively, if you prefer virtualenvwrapper
-```
-mkvirtualenv hangman_env
-workon hangman_env
-```
-
 #### Run setup script
 ```
 source setup.sh
 ```
 
-#### Run locally
+##### After initial set-up, app run locally with:
 ```
 python run.py
 ```
