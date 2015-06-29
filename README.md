@@ -1,3 +1,10 @@
+Mr. Hangman is a guessing game that allows users to guess letters in a
+randomly selected word. The app comes with 240 common English words.
+You can add more words to the game by adding words to the words.txt file.
+
+The feature I want to add next is a 'stick' hangman graphic through the
+HTML5 canvas element.
+
 ### Running [Hangman](http://mr-hangman.herokuapp.com/login) locally
 Set-up should be 3 terminal commands
 
