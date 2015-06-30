@@ -15,18 +15,18 @@ Assumes:
   2. Postgresql set-up locally
   3. pip and virtualenvwrapper installed
 
-#### Clone the project
+##### Clone the project
 ```
 git clone https://github.com/j-stew/hangman.git
 cd hangman
 ```
 
-#### Run setup script
+##### Run setup script
 ```
 source setup.sh
 ```
 
-###### Beyond initial set-up
+#### Beyond initial set-up
 Environment variables in virtualenvwrapper:
 Set in ./bin/postactivate
 Unset in ./bin/postdeactivate
