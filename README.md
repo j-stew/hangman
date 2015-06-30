@@ -4,7 +4,8 @@ You can add more words to the game by adding words to the words.txt file.
 
 Features I want to add:
 * 'stick' hangman graphic with HTML5 canvas element
-* setup.sh adds environment variables to virtualenvwrapper
+* Python's unittest.mock for edge cases like user playing all words in
+word bank
 
 ### Running [Hangman](http://mr-hangman.herokuapp.com/login) locally
 Set-up should be 3 terminal commands
@@ -25,8 +26,15 @@ cd hangman
 source setup.sh
 ```
 
-##### After initial set-up, run app locally with:
+###### Beyond initial set-up
+Environment variables in virtualenvwrapper:
+Set in ./bin/postactivate
+Unset in ./bin/postdeactivate
+
+Run app locally:
 ```
 python run.py
 ```
-Navigate to http://127.0.0.1:5000/login
+
+Navigate to:
+http://127.0.0.1:5000/login
