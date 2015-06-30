@@ -14,8 +14,6 @@ hangman_app.config['TESTING']=True
 class Hangmanest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        model.db.session.remove()
-        model.db.drop_all()
         model.db.create_all()
         model.Word.add_words()
         user=create_user('lee_test', '123_test')

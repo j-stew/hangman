@@ -57,19 +57,19 @@ class HangmanModelTest(unittest.TestCase):
 
 class HangmanWordsFile(unittest.TestCase):
     @classmethod
-    def setUpClass(self):
+    def setUpClass(cls):
         db.create_all()
         Word.add_words()
 
     @classmethod
-    def tearDownClass(self):
+    def tearDownClass(cls):
         db.session.remove()
         db.drop_all()
 
         with open("hangman/words.txt", "r+") as f:
             words = f.read()
             words = rstrip(words, '\ntest_add_words')
-            
+
         with open("hangman/words.txt", "w") as f:
             f.write(words)
 

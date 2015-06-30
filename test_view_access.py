@@ -13,9 +13,7 @@ hangman_app.config['TESTING']=True
 
 class HangmanAccessTest(unittest.TestCase):
     @classmethod
-    def setUpClass(self):
-        db.session.remove()
-        db.drop_all()
+    def setUpClass(cls):
         db.create_all()
         Word.add_words()
 
@@ -24,7 +22,7 @@ class HangmanAccessTest(unittest.TestCase):
         self.client.post('/signup', data=data, follow_redirects=True)
 
     @classmethod
-    def tearDownClass(self):
+    def tearDownClass(cls):
         db.session.remove()
         db.drop_all()
 

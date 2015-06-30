@@ -14,7 +14,7 @@ hangman_app.config['TESTING']=True
 
 class HangmanPlayTest(unittest.TestCase):
     @classmethod
-    def setUpClass(self):
+    def setUpClass(cls):
         db.create_all()
         Word.add_words()
         self.client = hangman_app.test_client()
@@ -22,7 +22,7 @@ class HangmanPlayTest(unittest.TestCase):
         self.client.post('/signup', data=data, follow_redirects=True)
 
     @classmethod
-    def tearDownClass(self):
+    def tearDownClass(cls):
         db.session.remove()
         db.drop_all()
 
@@ -108,7 +108,7 @@ class HangmanPlayTest(unittest.TestCase):
             self.assertEqual(guesses.correct_guesses, '___ ___ ___ ___ ___')
             self.assertEqual(guesses.incorrect_guesses, '')
             self.assertEqual(guesses.remaining_guesses, 5)
-     
+
     def test_no_repeat_words(self):
         with hangman_app.test_client() as client:
             data = {'username':'repeat_test', 'password':'123_test', 'confirm_password':'123_test'}

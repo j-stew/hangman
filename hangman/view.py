@@ -60,7 +60,7 @@ def login():
 	session['user_id'] = get_user(username).id
 	return redirect(url_for('play'))
 
-@hangman_app.route("/logout", methods=["GET", "POST"])
+@hangman_app.route("/logout")
 def logout():
 	session.clear()
 	return redirect(url_for("login"))
