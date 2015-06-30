@@ -28,8 +28,8 @@ source setup.sh
 
 #### Beyond initial set-up
 * Environment variables in virtualenvwrapper:
-Set in ./bin/postactivate
-Unset in ./bin/postdeactivate
+** Set in ./bin/postactivate
+** Unset in ./bin/postdeactivate
 
 * Run app locally:
 ```
