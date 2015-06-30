@@ -12,14 +12,14 @@ from hangman.controller import create_user, create_game, get_guesses, update_ans
 
 hangman_app.config['TESTING']=True
 
-class HangmanPlayTest(unittest.TestCase):
+class PlayLoadRedirectTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         db.create_all()
         Word.add_words()
-        self.client = hangman_app.test_client()
+        cls.client = hangman_app.test_client()
         data = {'username':'lily_test', 'password':'123_test', 'confirm_password':'123_test'}
-        self.client.post('/signup', data=data, follow_redirects=True)
+        cls.client.post('/signup', data=data, follow_redirects=True)
 
     @classmethod
     def tearDownClass(cls):
@@ -33,41 +33,15 @@ class HangmanPlayTest(unittest.TestCase):
     def tearDown(self):
         self.client.get('/logout')
 
-    def test_game_does_not_persist_after_logout(self):
-        with hangman_app.test_client() as client:
-            data = {'username':'lily_test', 'password':'123_test'}
-            client.post('/login', data=data, follow_redirects=True)
-            client.post('/play', data={'guess':'a'}, follow_redirects=True)
-            client.get('/logout')
-
-            data = {'username':'lily_test', 'password':'123_test'}
-            resp=client.post('/login', data=data, follow_redirects=True)
-
-    def test_play_load(self):
+    def test_load_play(self):
         resp=self.client.get('/play', follow_redirects=True)
         self.assertEqual(resp.status_code, 200)
 
-    def test_scores_load(self):
+    def test_load_scores(self):
         resp=self.client.get('/scores', follow_redirects=True)
         self.assertEqual(resp.status_code, 200)
 
-    def test_play_guess_length_flash(self):
-        data = {'guess':'aa'}
-        resp = self.client.post('/play', data=data, follow_redirects=True)
-        self.assertIn('Please guess a single letter', resp.data)
-
-    def test_play_guess_alpha_flash(self):
-        data = {'guess':'1'}
-        resp = self.client.post('/play', data=data, follow_redirects=True)
-        self.assertIn('not punctuation or numbers', resp.data)
-
-    def test_play_guess_dupe_flash(self):
-        data = {'guess':'a'}
-        self.client.post('/play', data=data, follow_redirects=True)
-        resp = self.client.post('/play', data=data, follow_redirects=True)
-        self.assertIn('already guessed', resp.data)
-
-    def test_win_redirect(self):
+    def test_redirect_play_to_win(self):
         with hangman_app.test_client() as client:
             data = {'username':'lauren_test', 'password':'123_test', 'confirm_password':'123_test'}
             client.post('/signup', data=data, follow_redirects=True)
@@ -77,7 +51,7 @@ class HangmanPlayTest(unittest.TestCase):
             path=flask.request.path
             self.assertEqual(path, '/win')
 
-    def test_loss_redirect(self):
+    def test_redirect_play_to_loss(self):
         with hangman_app.test_client() as client:
             data = {'username':'ryan_test', 'password':'123_test', 'confirm_password':'123_test'}
             client.post('/signup', data=data, follow_redirects=True)
@@ -94,7 +68,79 @@ class HangmanPlayTest(unittest.TestCase):
             path=flask.request.path
             self.assertEqual(path, '/loss')
 
-    def test_change_answer(self):
+    def test_new_game_on_login(self):
+        with hangman_app.test_client() as client:
+            data = {'username':'lily_test', 'password':'123_test'}
+            client.post('/login', data=data, follow_redirects=True)
+            client.post('/play', data={'guess':'a'}, follow_redirects=True)
+            first_game=get_game(flask.session['game_id'])
+            client.get('/logout')
+
+            client.post('/login', data=data, follow_redirects=True)
+            second_game=get_game(flask.session['game_id'])
+            self.assertNotEqual(first_game, second_game)
+
+class PlayFlashTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        db.create_all()
+        Word.add_words()
+        cls.client = hangman_app.test_client()
+        data = {'username':'lily_test', 'password':'123_test', 'confirm_password':'123_test'}
+        cls.client.post('/signup', data=data, follow_redirects=True)
+
+    @classmethod
+    def tearDownClass(cls):
+        db.session.remove()
+        db.drop_all()
+
+    def setUp(self):
+        data = {'username':'lily_test', 'password':'123_test'}
+        self.client.post('/login', data=data, follow_redirects=True)
+
+    def tearDown(self):
+        self.client.get('/logout')
+
+    def test_flash_need_single_letter(self):
+        data = {'guess':'aa'}
+        resp = self.client.post('/play', data=data, follow_redirects=True)
+        self.assertIn('Please guess a single letter', resp.data)
+
+    def test_flash_not_punc_or_number(self):
+        data = {'guess':'1'}
+        resp = self.client.post('/play', data=data, follow_redirects=True)
+        self.assertIn('not punctuation or numbers', resp.data)
+
+    def test_flash_already_guessed_letter(self):
+        data = {'guess':'a'}
+        self.client.post('/play', data=data, follow_redirects=True)
+        resp = self.client.post('/play', data=data, follow_redirects=True)
+        self.assertIn('already guessed', resp.data)
+
+class PlayGameTest(unittest.TestCase):
+    with open("hangman/words.txt", "r+") as f:
+        words_full = f.readlines()
+
+    def setUp(self):
+        words_short = ''.join(self.words_full[0:5])
+        with open("hangman/words.txt", "w") as f:
+            f.write(words_short)
+        db.create_all()
+        Word.add_words()
+        self.client = hangman_app.test_client()
+        data = {'username':'lily_test', 'password':'123_test', 'confirm_password':'123_test'}
+        self.client.post('/signup', data=data, follow_redirects=True)
+
+    def tearDown(self):
+        self.client.get('/logout')
+
+        words_full = ''.join(PlayGameTest.words_full)
+        with open("hangman/words.txt", "w") as f:
+            f.write(words_full)
+        db.session.remove()
+        db.drop_all()
+
+    def test_answer_cheat(self):
         with hangman_app.test_client() as client:
             data = {'username':'lily_test', 'password':'123_test'}
             client.post('/login', data=data, follow_redirects=True)
@@ -125,22 +171,6 @@ class HangmanPlayTest(unittest.TestCase):
             user_words = [game.answer for game in get_user(flask.session['user_id']).games]
             all_words = [word.word for word in Word.query.all()]
             self.assertEqual(sorted(user_words), sorted(all_words))
-
-    def test_word_limit_loads(self):
-        with hangman_app.test_client() as client:
-            data = {'username':'word_limit_test', 'password':'123_test', 'confirm_password':'123_test'}
-            client.post('/signup', data=data)
-            i = 0
-            total_words = Word.query.count()
-            while i < total_words:
-                client.get('/play', follow_redirects=True)
-                answer=get_game(flask.session['game_id']).answer
-                for letter in set(answer):
-                    client.post('/play', data={'guess':letter}, follow_redirects=True)
-                i+=1
-
-            resp = client.get('/play', follow_redirects=True)
-            self.assertIn('used all of the words in the word bank', resp.data)
 
 if __name__ == '__main__':
     unittest.main()

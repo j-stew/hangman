@@ -49,7 +49,8 @@ class Word(db.Model):
 			words = set(open("hangman/words.txt", "r").read().split("\n"))
 			added_date=datetime.utcfromtimestamp(stat('hangman/words.txt').st_mtime)
 			for word in words:
-				db.session.add(Word(added_date, word))
+				if word:
+					db.session.add(Word(added_date, word))
 			db.session.commit()
 		elif added_date > cls.query.order_by(cls.added_date.desc()).first().added_date:
 			file_words = set(open("hangman/words.txt", "r").read().split("\n"))
@@ -57,13 +58,13 @@ class Word(db.Model):
 			new_words = file_words.difference(db_words)
 			if new_words:
 				for word in new_words:
-					if not cls.query.filter_by(word=word).first():
+					if word:
 						db.session.add(Word(added_date,word))
 				db.session.commit()
 
 	@classmethod
 	def random_word(cls):
-		num = randint(1, cls.query.count()+1)
+		num = randint(1, cls.query.count())
 		return cls.query.filter_by(id=num).first()
 
 class Game(db.Model):
@@ -94,10 +95,7 @@ class Game(db.Model):
 
 		word=None
 		while word==None:
-			try:
-				word=Word.random_word().word
-			except AttributeError:
-				word=Word.random_word().word
+			word=Word.random_word().word
 			if word in past_words:
 				word=None
 		return word

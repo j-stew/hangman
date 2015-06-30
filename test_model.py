@@ -9,7 +9,7 @@ from hangman.model import db, Word
 from hangman import hangman_app, model, controller
 hangman_app.config['TESTING']=True
 
-class HangmanModelTest(unittest.TestCase):
+class ModelTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         db.create_all()
@@ -20,10 +20,10 @@ class HangmanModelTest(unittest.TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_create_word(self):
-        self.assertTrue(Word.query.count() > 0)
+    def test_words_added(self):
+        self.assertTrue(Word.query.count() > 100)
 
-    def test_create_get_user(self):
+    def test_user_fields(self):
         new_user = controller.create_user('jess_test', '123_test')
         user=controller.get_user('jess_test')
         self.assertTrue(user.id > 0)
@@ -33,7 +33,7 @@ class HangmanModelTest(unittest.TestCase):
         self.assertEqual(user.loses, 0)
         self.assertEqual(user.games.count(), 0)
 
-    def test_create_get_game(self):
+    def test_game_fields(self):
         new_user=controller.create_user('lauren_test', '123_test')
         user=controller.get_user('lauren_test')
         game=controller.create_game(user.id)[0]
@@ -44,7 +44,7 @@ class HangmanModelTest(unittest.TestCase):
         self.assertTrue(game.guesses.remaining_guesses>0)
         self.assertTrue(game.user_id)
 
-    def test_create_get_guesses(self):
+    def test_guesses_fields(self):
         new_user=controller.create_user('ryan_test', '789_test')
         user=controller.get_user('ryan_test')
         guesses=controller.create_game(user.id)[1]
@@ -55,7 +55,7 @@ class HangmanModelTest(unittest.TestCase):
         self.assertTrue(guesses.remaining_guesses>0)
         self.assertTrue(guesses.game_id)
 
-class HangmanWordsFile(unittest.TestCase):
+class WordFileTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         db.create_all()
@@ -63,6 +63,7 @@ class HangmanWordsFile(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
+        """Removes text added to file during test"""
         db.session.remove()
         db.drop_all()
 
@@ -73,7 +74,7 @@ class HangmanWordsFile(unittest.TestCase):
         with open("hangman/words.txt", "w") as f:
             f.write(words)
 
-    def test_edit_adds_words(self):
+    def test_file_edit_adds_word(self):
         with open("hangman/words.txt", "a") as f:
             f.write("\ntest_add_words")
 
