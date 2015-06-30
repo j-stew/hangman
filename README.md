@@ -27,14 +27,14 @@ source setup.sh
 ```
 
 #### Beyond initial set-up
-Environment variables in virtualenvwrapper:
+* Environment variables in virtualenvwrapper:
 Set in ./bin/postactivate
 Unset in ./bin/postdeactivate
 
-Run app locally:
+* Run app locally:
 ```
 python run.py
 ```
 
-Navigate to:
+* Navigate to:
 http://127.0.0.1:5000/login
