@@ -3,8 +3,9 @@ randomly selected word. The app comes with 240 common English words.
 You can add more words to the game by adding words to the words.txt file.
 
 Future features:
-* 'stick' hangman graphic with HTML5 canvas element
-* Better organization of files in root directory outside of app
+* Javascript: 'stick' hangman graphic with HTML5 canvas element
+* DevOps: Better organization of files in root directory outside of app
+* Testing: Experiment with mocks/stubs/dependency injection for edge case testing
 
 ### Running [Hangman](http://mr-hangman.herokuapp.com/login) locally
 Set-up should be 3 terminal commands
